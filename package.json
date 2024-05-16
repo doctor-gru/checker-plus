@@ -2,7 +2,7 @@
   "name": "pinlink",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "app.ts",
   "scripts": {
     "start": "node dist/app.js",
     "dev": "nodemon app.ts",
