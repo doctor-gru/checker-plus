@@ -6,7 +6,7 @@ const Schema = mongoose.Schema;
 export type HostDocument = Document & IHost;
 
 const hostSchema = new Schema<HostDocument>({
-  modal: {
+  model: {
     type: String,
     required: true,
   },

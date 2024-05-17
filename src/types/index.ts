@@ -14,7 +14,7 @@ export interface IApiKey {
 }
 
 export interface IHost {
-  modal: string;
+  model: string;
   costPerHour: number;
   provider: string;
   deviceType: string;

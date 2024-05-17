@@ -21,7 +21,7 @@ export const fetch = async (): Promise<IHost[]> => {
       
       for (const key in cpu) {
         hosts.push({
-          modal: key,
+          model: key,
           costPerHour: cpu[key].cost.costHr,
           deviceType: 'CPU',
           provider: 'TensorDock',
@@ -30,7 +30,7 @@ export const fetch = async (): Promise<IHost[]> => {
       
       for (const key in gpu) {
         hosts.push({
-          modal: key,
+          model: key,
           costPerHour: gpu[key].cost.costHr,
           deviceType: 'GPU',
           provider: 'TensorDock',
