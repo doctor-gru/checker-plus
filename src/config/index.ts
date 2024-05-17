@@ -1,7 +1,7 @@
 import express, { Express } from "express"
 import cookieSession from "cookie-session";
 import morgan from "morgan";
-import winston from "winston";
+import { winstonLogger } from "../middlewares";
 
 import cookieParser from "cookie-parser";
 
@@ -16,17 +16,7 @@ export const configureExpress = (app: Express) => {
     })
   );
 
-  // Use winston on production
-  let log: any = 'dev';
-  if (ENVIRONMENT !== 'development') {
-    log = {
-      stream: {
-        write: (message: string) => winston.info(message),
-      },
-    };
-  }
-
-  app.use(morgan(log));
+  app.use(winstonLogger);
   app.use(express.json());
   app.use(express.urlencoded({ extended: true }));
   app.use(cookieParser());

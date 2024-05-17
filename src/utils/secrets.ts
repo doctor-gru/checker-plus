@@ -33,3 +33,5 @@ export const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID as string;
 export const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET as string;
 
 export const COOKIE_KEY = process.env.COOKIE_KEY as string;
+
+export const FETCH_INTERVAL = (process.env.FETCH_INTERVAL || 10000) as number;

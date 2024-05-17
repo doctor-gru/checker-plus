@@ -1,4 +1,4 @@
-import mongoose, { Document, ObjectId } from "mongoose";
+import mongoose, { Document } from "mongoose";
 import { IApiKey } from "../types";
 
 const Schema = mongoose.Schema;

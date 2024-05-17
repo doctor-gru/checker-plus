@@ -13,6 +13,12 @@ export interface IApiKey {
   expiredIn: Date;
 }
 
+export interface IHost {
+  modal: string;
+  costPerHour: number;
+  provider: string;
+  deviceType: string;
+}
 export interface ControllerResponse {
   success: boolean;
   error?: string;

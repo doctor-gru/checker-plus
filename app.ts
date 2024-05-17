@@ -7,6 +7,8 @@ import { configureExpress } from "./src/config";
 import { configurePassport } from "./src/passport";
 import { configureRoutes } from "./src/routes";
 
+import { sync } from "./src/sync";
+
 const app = express();
 
 configureExpress(app);
@@ -20,3 +22,5 @@ mongoose.connect(MONGO_URI, () => {
 app.listen(PORT, () => {
   console.log("App listening on port: " + PORT);
 });
+
+sync();

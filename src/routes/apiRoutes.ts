@@ -1,6 +1,6 @@
 import express from "express";
 
-import { findApiKey, registerApiKey, allApiKeys } from "../controller/apiKey";
+import { findApiKey, registerApiKey, allApiKeys } from "../controller/api";
 import { availableHosts } from "../controller/api";
 
 const router = express.Router();
@@ -41,7 +41,7 @@ router.get("/hosts", async (req, res) => {
     }
   }
 
-  const data = availableHosts();
+  const data = await availableHosts();
   return res.status(200).send(data);
 })
 
