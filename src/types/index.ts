@@ -18,6 +18,7 @@ export interface IHost {
   costPerHour: number;
   provider: string;
   deviceType: string;
+  index?: string;
 }
 export interface ControllerResponse {
   success: boolean;

@@ -21,6 +21,11 @@ const hostSchema = new Schema<HostDocument>({
   deviceType: {
     type: String,
     required: true,
+  },
+  index: {
+    type: String,
+    required: true,
+    default: "Unavailable",
   }
 });
 
