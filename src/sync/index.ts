@@ -1,18 +1,20 @@
-import { _fetch as fetchTensorDock } from "./tensordock"
-import { _fetch as fetchVastAI } from "./vastai";
-import { FETCH_INTERVAL } from "../utils/secrets";
-import { availableHosts, updateHost, removeHosts, insertHosts } from "../controller/api";
-import { HostDocument } from "../models/Host";
-import { IHost } from "../types";
-import { logger } from "../utils/logger";
+import { _fetch as fetchTensorDock } from './tensordock'
+import { _fetch as fetchVastAI } from './vastai';
+import { _fetch as fetchPaperspace} from './paperspace';
+import { FETCH_INTERVAL } from '../utils/secrets';
+import { availableHosts, removeHosts, insertHosts } from '../controller/api';
+import { HostDocument } from '../models/Host';
+import { IHost } from '../types';
+import { logger } from '../utils/logger';
 
 export const sync = async () => {
-  const [vastAI, tensorDock] = await Promise.all([
+  const [vastAI, tensorDock, paperspace] = await Promise.all([
     fetchTensorDock(),
     fetchVastAI(),
+    fetchPaperspace(),
   ])
   let allHosts: IHost[] = [];
-  allHosts = vastAI.concat(tensorDock);
+  allHosts = vastAI.concat(tensorDock).concat(paperspace);
 
   let removingList: string[] = [];
 

@@ -1,6 +1,6 @@
-import mongoose, { Document } from "mongoose";
-import bcrypt from "bcryptjs";
-import { IUser } from "../types";
+import mongoose, { Document } from 'mongoose';
+import bcrypt from 'bcryptjs';
+import { IUser } from '../types';
 
 const Schema = mongoose.Schema;
 
@@ -37,6 +37,6 @@ userSchema.methods = {
   },
 }
 
-const User = mongoose.model<UserDocument>("User", userSchema);
+const User = mongoose.model<UserDocument>('User', userSchema);
 
 export default User;

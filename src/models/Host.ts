@@ -1,5 +1,5 @@
-import mongoose, { Document } from "mongoose";
-import { IHost } from "../types";
+import mongoose, { Document } from 'mongoose';
+import { IHost } from '../types';
 
 const Schema = mongoose.Schema;
 
@@ -25,10 +25,10 @@ const hostSchema = new Schema<HostDocument>({
   index: {
     type: String,
     required: true,
-    default: "Unavailable",
+    default: 'Unavailable',
   }
 });
 
-const Host = mongoose.model<HostDocument>("Host", hostSchema);
+const Host = mongoose.model<HostDocument>('Host', hostSchema);
 
 export default Host;

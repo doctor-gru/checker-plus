@@ -1,27 +1,27 @@
-import express from "express";
+import express from 'express';
 
-import { findApiKey, registerApiKey, allApiKeys } from "../controller/api";
-import { availableHosts } from "../controller/api";
+import { findApiKey, registerApiKey, allApiKeys } from '../controller/api';
+import { availableHosts } from '../controller/api';
 
 const router = express.Router();
 
-router.post("/register", async (req, res) => {
+router.post('/register', async (req, res) => {
   if (req.user === undefined)
-    return res.status(200).send({ success: false, error: "User not available" });
+    return res.status(200).send({ success: false, error: 'User not available' });
 
   const data = await registerApiKey((req.user as any)._id);
   return res.status(200).send(data);
 });
 
-router.get("/keys", async (req, res) => {
+router.get('/keys', async (req, res) => {
   if (req.user === undefined)
-    return res.status(200).send({ success: false, error: "User not available" });
+    return res.status(200).send({ success: false, error: 'User not available' });
 
   const data = await allApiKeys((req.user as any)._id);
   return res.status(200).send(data);
 });
 
-router.get("/hosts", async (req, res) => {
+router.get('/hosts', async (req, res) => {
   if (req.user === undefined) {
     if (req.query.apiKey !== undefined)
     {

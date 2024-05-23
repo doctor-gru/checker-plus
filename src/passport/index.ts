@@ -1,13 +1,13 @@
-import passport from "passport";
-import passportGoogle from "passport-google-oauth20";
-import passportLocal from "passport-local";
-import { Express } from "express";
+import passport from 'passport';
+import passportGoogle from 'passport-google-oauth20';
+import passportLocal from 'passport-local';
+import { Express } from 'express';
 
-import User from "../models/User";
+import User from '../models/User';
 
-import { findUserByEmail, findUserByGoogleId, registerUser } from "../controller/user";
+import { findUserByEmail, findUserByGoogleId, registerUser } from '../controller/user';
 
-import { GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET } from "../utils/secrets";
+import { GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET } from '../utils/secrets';
 
 const GoogleStrategy = passportGoogle.Strategy;
 const LocalStrategy = passportLocal.Strategy;
@@ -27,7 +27,7 @@ export const configurePassport = (app: Express) => {
       {
         clientID: GOOGLE_CLIENT_ID,
         clientSecret: GOOGLE_CLIENT_SECRET,
-        callbackURL: "/auth/google/redirect",
+        callbackURL: '/auth/google/redirect',
       },
       async (accessToken, refreshToken, profile, done) => {
         const exists = await findUserByGoogleId(profile.id);
@@ -37,7 +37,7 @@ export const configurePassport = (app: Express) => {
           const newUser = await registerUser({
             googleId: profile.id,
             username: profile.displayName,
-            email: profile.emails?.[0].value ?? "",
+            email: profile.emails?.[0].value ?? '',
             apiKeys: [],
           })
           if (newUser.success == true) {

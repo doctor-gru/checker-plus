@@ -1,50 +1,50 @@
-import express from "express";
-import passport from "passport";
-import bcrypt from "bcryptjs";
+import express from 'express';
+import passport from 'passport';
+import bcrypt from 'bcryptjs';
 
-import { registerUser } from "../controller/user";
+import { registerUser } from '../controller/user';
 
 const router = express.Router();
 
-router.get("/login", (req, res) => {
+router.get('/login', (req, res) => {
   if (req.user) {
-    res.redirect("/profile");
+    res.redirect('/profile');
   }
-  res.render("login");
+  res.render('login');
 });
 
-router.get("/logout", (req, res) => {
+router.get('/logout', (req, res) => {
   req.logout();
-  res.redirect("/");
+  res.redirect('/');
 });
 
-router.post("/signup", async (req, res) => {
+router.post('/signup', async (req, res) => {
   const data = await registerUser({
     email: req.body.email,
     username: req.body.username,
     passwordHash: bcrypt.hashSync(req.body.password, 10),
-    googleId: "",
+    googleId: '',
     apiKeys: [],
   });
   return res.status(200).send(data);
 })
 
 router.post(
-  "/login", 
-  passport.authenticate("local", { failureRedirect: "/auth/login" }),
+  '/login', 
+  passport.authenticate('local', { failureRedirect: '/auth/login' }),
   async (req, res) => {
-    res.redirect("/profile");
+    res.redirect('/profile');
 })
 
 router.get(
-  "/google",
-  passport.authenticate("google", {
-    scope: ["email", "profile"],
+  '/google',
+  passport.authenticate('google', {
+    scope: ['email', 'profile'],
   })
 );
 
-router.get("/google/redirect", passport.authenticate("google"), (req, res) => {
-  res.redirect("/profile");
+router.get('/google/redirect', passport.authenticate('google'), (req, res) => {
+  res.redirect('/profile');
 });
 
 export default router;

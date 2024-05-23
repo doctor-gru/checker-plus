@@ -1,13 +1,13 @@
-import express, { Express } from "express"
-import cookieSession from "cookie-session";
-import { winstonLogger } from "../middlewares";
+import express, { Express } from 'express'
+import cookieSession from 'cookie-session';
+import { winstonLogger } from '../middlewares';
 
-import cookieParser from "cookie-parser";
+import cookieParser from 'cookie-parser';
 
-import { COOKIE_KEY } from "../utils/secrets";
+import { COOKIE_KEY } from '../utils/secrets';
 
 export const configureExpress = (app: Express) => {
-  app.set("view engine", "ejs");
+  app.set('view engine', 'ejs');
   app.use(
     cookieSession({
       maxAge: 24 * 60 * 60 * 1000,

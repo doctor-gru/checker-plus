@@ -39,6 +39,8 @@
     "express": "^4.17.1",
     "generate-api-key": "^1.0.2",
     "mongoose": "^6.0.9",
+    "node-cache": "^5.1.2",
+    "paperspace-node": "^0.2.4",
     "passport": "^0.5.0",
     "passport-google-oauth20": "^2.0.0",
     "passport-local": "^1.0.0",

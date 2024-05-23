@@ -1,6 +1,6 @@
-import * as validator from "validator";
-import User from "../models/User";
-import { ControllerResponse, IUser } from "../types"
+import * as validator from 'validator';
+import User from '../models/User';
+import { ControllerResponse, IUser } from '../types'
 
 export const findUserByEmail = async (email: string): Promise<ControllerResponse> => {
   if (!validator.isEmail(email))

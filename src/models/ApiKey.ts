@@ -1,5 +1,5 @@
-import mongoose, { Document } from "mongoose";
-import { IApiKey } from "../types";
+import mongoose, { Document } from 'mongoose';
+import { IApiKey } from '../types';
 
 const Schema = mongoose.Schema;
 
@@ -14,6 +14,6 @@ const apiKeySchema = new Schema<ApiKeyDocument>({
   expiredIn: Date,
 });
 
-const ApiKey = mongoose.model<ApiKeyDocument>("ApiKey", apiKeySchema);
+const ApiKey = mongoose.model<ApiKeyDocument>('ApiKey', apiKeySchema);
 
 export default ApiKey;

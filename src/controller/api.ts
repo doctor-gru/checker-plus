@@ -1,9 +1,9 @@
-import User from "../models/User";
-import ApiKey from "../models/ApiKey";
-import Host from "../models/Host";
-import generateApiKey from "generate-api-key";
-import { ControllerResponse } from "../types"
-import { IHost } from "../types";
+import User from '../models/User';
+import ApiKey from '../models/ApiKey';
+import Host from '../models/Host';
+import generateApiKey from 'generate-api-key';
+import { ControllerResponse } from '../types'
+import { IHost } from '../types';
 
 export const findApiKey = async (key: string): Promise<ControllerResponse> => {
   try {
