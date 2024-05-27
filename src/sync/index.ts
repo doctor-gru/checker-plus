@@ -15,7 +15,6 @@ export const sync = async () => {
   ])
   let allHosts: IHost[] = [];
   allHosts = vastAI.concat(tensorDock).concat(paperspace);
-  console.log(allHosts);
 
   let removingList: string[] = [];
 
