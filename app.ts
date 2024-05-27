@@ -17,10 +17,9 @@ configureRoutes(app);
 
 mongoose.connect(MONGO_URI, () => {
   console.log('connected to mongodb');
+  sync();
 });
 
 app.listen(PORT, () => {
   console.log('App listening on port: ' + PORT);
 });
-
-sync();

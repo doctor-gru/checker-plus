@@ -46,7 +46,7 @@ export const _fetch = (): Promise<IHost[]> => {
 
       return resolve(hosts);
     } catch (e) {
-      reject(e);
+      return resolve([]);
     }
   });
 }
