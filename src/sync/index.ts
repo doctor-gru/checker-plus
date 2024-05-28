@@ -19,6 +19,7 @@ export const sync = async () => {
   let removingList: string[] = [];
 
   const $ = await availableHosts();
+  console.log($);
   if ($.success == true) {
     const oldHosts: HostDocument[]  = $.data;
     
