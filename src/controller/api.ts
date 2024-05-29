@@ -74,7 +74,6 @@ export const availableHosts = async (): Promise<ControllerResponse> => {
   } catch (e) {
     return { success: false, error: (e as Error).message };
   }
-  
 }
 
 export const removeHosts = async (userIds: string[]): Promise<ControllerResponse> => {
