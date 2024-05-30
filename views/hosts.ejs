@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Available Hosts Page</title>
+    <style>
+      table, th, td {
+        border: 1px solid;
+      }
+    </style>
+</head>
+
+<body>
+    <h1>Available Hosts Page</h1>
+    <table>
+      <thead>
+        <tr>
+          <th scope="col">#</th>
+          <th scope="col">Model</th>
+          <th scope="col">Cost Per Hour</th>
+          <th scope="col">Provider</th>
+          <th scope="col">Device Type</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% if (data && data.success) { %>
+            <% data.data.map((item, index) => { %>
+              <tr>
+                <td><%= index + 1 %></td>
+                <td><%= item.model %></td>
+                <td><%= item.costPerHour.toFixed(3) %></td>
+                <td><%= item.provider %></td>
+                <td><%= item.deviceType %></td>
+              </tr>
+            <% }); %>
+        <% } %>
+      </tbody>
+    </table>
+</body>
+
+</html>

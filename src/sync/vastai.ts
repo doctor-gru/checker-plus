@@ -42,9 +42,9 @@ export const _fetch = (): Promise<IHost[]> => {
       let hosts: IHost[] = [];
       
       hosts = bundles.map((bundle: any) => ({
-        model: bundle.gpu_name,
+        model: `${bundle.gpu_name} x${bundle.gpu_lanes}`,
         costPerHour: bundle.discounted_dph_total,
-        index: bundle.host_id,
+        index: `${bundle.machine_id}`,
         deviceType: 'GPU',
         provider: 'VastAI',
       }));
