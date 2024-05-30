@@ -40,3 +40,5 @@ export const PAPERSPACE_APIKEY = (process.env.PAPERSPACE_APIKEY || '') as string
 export const PAPERSPACE_EMAIL = (process.env.PAPERSPACE_EMAIL || '') as string;
 export const PAPERSPACE_PWD = (process.env.PAPERSPACE_PWD || '') as string;
 export const PAPERSPACE_REQUEST_VALIDATE_KEY = (process.env.PAPERSPACE_REQUEST_VALIDATE_KEY || '') as string;
+
+export const LAMBDA_APIKEY = (process.env.LAMBDA_APIKEY || '') as string;

@@ -12,8 +12,6 @@ services:
     dns_search: '' # For Mac smoothness
     env_file:
       - .env
-    env:
-      - MONGO_LOCAL=mongodb://mongo:27017/
     ports:
       - 3000:3000
     networks:

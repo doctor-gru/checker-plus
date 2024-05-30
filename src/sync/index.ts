@@ -7,6 +7,25 @@ import { HostDocument } from '../models/Host';
 import { IHost } from '../types';
 import { logger } from '../utils/logger';
 
+
+// Easy and simple markup for now
+const markup = (host: IHost) => {
+  if (host.deviceType != "GPU")
+    return host;
+
+  if (host.model.includes("H100") || host.model.includes("H200")) {
+    return {
+      ...host,
+      costPerHour: host.costPerHour * 0.8,
+    }
+  } else {
+    return {
+      ...host,
+      costPerHour: host.costPerHour * 0.5,
+    }
+  }
+}
+
 export const sync = async () => {
   const [vastAI, tensorDock, paperspace] = await Promise.all([
     fetchTensorDock(),
@@ -14,12 +33,11 @@ export const sync = async () => {
     fetchPaperspace(),
   ])
   let allHosts: IHost[] = [];
-  allHosts = vastAI.concat(tensorDock).concat(paperspace);
+  allHosts = vastAI.concat(tensorDock).concat(paperspace).map(markup);
 
   let removingList: string[] = [];
 
   const $ = await availableHosts();
-  console.log($);
   if ($.success == true) {
     const oldHosts: HostDocument[]  = $.data;
     

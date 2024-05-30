@@ -67,22 +67,22 @@ export const _fetch = (): Promise<IHost[]> => {
   return new Promise(async (resolve, reject) => {      
     try {
       const begin = getCurrentTimeHr();
-      // let authenticateToken = appCache.get("authToken");
-      // let teamNamespace = appCache.get("teamNamespace");
+      let authenticateToken = appCache.get("authToken");
+      let teamNamespace = appCache.get("teamNamespace");
 
-      let authenticateToken = 'u3e2ffidgDCjW9ZqThtAG25eFi73zDID6kAMRibsGK60hasBMKC2JjzRgELWfqyB';
-      let teamNamespace = 'tr66e86fx5';
+      // let authenticateToken = 'u3e2ffidgDCjW9ZqThtAG25eFi73zDID6kAMRibsGK60hasBMKC2JjzRgELWfqyB';
+      // let teamNamespace = 'tr66e86fx5';
       
-      // if (authenticateToken == undefined || teamNamespace == undefined)
-      // {
-      //   const authResult = await _authenticate();
+      if (authenticateToken == undefined || teamNamespace == undefined)
+      {
+        const authResult = await _authenticate();
 
-      //   if (authResult.success == false)
-      //     reject(authResult.error);
+        if (authResult.success == false)
+          reject(authResult.error);
 
-      //   authenticateToken = appCache.get("authToken");
-      //   teamNamespace = appCache.get("teamNamespace");
-      // }
+        authenticateToken = appCache.get("authToken");
+        teamNamespace = appCache.get("teamNamespace");
+      }
 
       const response = await fetch(
         'https://api.paperspace.com/trpc/machines.createFormDataV2', 
