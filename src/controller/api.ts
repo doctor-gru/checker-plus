@@ -67,7 +67,7 @@ export const allApiKeys = async (_userId: string): Promise<ControllerResponse> =
 
 export const availableHosts = async (): Promise<ControllerResponse> => {
   try {
-    const user = await Host.find({});
+    const user = await Host.find({}, { provider: 0 });
     if (!user || user.length == 0) 
       return { success: false, error: 'Hosts not found' };
     return { success: true, data: user };
