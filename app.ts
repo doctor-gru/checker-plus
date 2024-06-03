@@ -15,11 +15,24 @@ configureExpress(app);
 configurePassport(app);
 configureRoutes(app);
 
-mongoose.connect(MONGO_URI, () => {
-  console.log('connected to mongodb');
-  sync();
-});
+connect();
 
-app.listen(PORT, () => {
-  console.log('App listening on port: ' + PORT);
-});
+function connect() {
+  mongoose.connection
+    .on('disconnected', connect)
+    .once('open', listen);
+  mongoose.connect(MONGO_URI)
+    .then(() => {
+      console.log('connected to mongodb');
+      sync();
+    })
+    .catch((err) => {
+      console.log(err.message);
+    });
+}
+
+function listen() {
+  app.listen(PORT, () => {
+    console.log('App listening on port: ' + PORT);
+  });
+}
