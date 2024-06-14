@@ -26,7 +26,7 @@ const markup = (host: IHost) => {
   }
 }
 
-export const sync = async () => {
+export const syncInstances = async () => {
   const [vastAI, tensorDock, paperspace] = await Promise.all([
     fetchTensorDock(),
     fetchVastAI(),
@@ -66,5 +66,5 @@ export const sync = async () => {
   const currentDate = new Date();    
   logger.info(`SYNC [${currentDate.toUTCString()}] (${removingList.length}) REMOVED (${allHosts.length}) INSERTED`);
 
-  setTimeout(sync, FETCH_INTERVAL);
+  setTimeout(syncInstances, FETCH_INTERVAL);
 }

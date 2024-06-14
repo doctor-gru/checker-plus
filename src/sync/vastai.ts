@@ -60,3 +60,6 @@ export const _fetch = (): Promise<IHost[]> => {
     }
   });
 }
+
+export const _fetchInstanceInformation = () => {
+}

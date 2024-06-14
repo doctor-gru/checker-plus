@@ -20,6 +20,26 @@ export interface IHost {
   deviceType: string;
   index?: string;
 }
+
+export interface IRentHost {
+  model: string;
+  driverVersion: string;
+  vbiosVersion: string;
+}
+
+export interface IHostPerformance {
+  timestamp: number;
+  gpuUtil: number;
+  powerDraw: number;
+  fanSpeed: number;
+  temperature: number;
+  gpuClock: number;
+  memClock: number;
+  memAlloc: number;
+  memUtil: number;
+  videoClock: number;
+  smClock: number;
+}
 export interface ControllerResponse {
   success: boolean;
   error?: string;
