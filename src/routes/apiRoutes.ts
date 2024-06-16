@@ -21,4 +21,21 @@ router.get('/hosts', requireApiKey, async (req, res) => {
   return res.status(200).send(data);
 })
 
+router.get('/dockerGraphData', async (req, res) => {
+  const queryObject = url.parse(req.url, true).query;
+  const id = queryObject.id;
+  const duration = queryObject.duration;
+
+  if (typeof id !== 'string' || typeof duration !== 'string') {
+    return res.status(400).json({ error: 'Invalid parameters. `id` and `duration` must be strings.' });
+  }
+
+  try {
+    const data = await dockerGraphData(id, duration);
+    return res.status(200).json({"data":data});
+  } catch (error) {
+    return res.status(500).json({ error: "Internal server error" });
+  }
+});
+
 export default router;
