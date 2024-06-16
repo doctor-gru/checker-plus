@@ -109,3 +109,62 @@ export const updateHost = async (_id: string, updatedHost: IHost): Promise<Contr
     return { success: false, error: (e as Error).message };
   }
 }
+export const dockerGraphData = async (id: string, duration: string) => {
+  const url = 'https://monitor.m.tensordock.com/auth.php';
+  const requestData = `m=69&tx=${id}&u=${duration}`;
+
+  const config = {
+    headers: {
+      'Host': 'monitor.m.tensordock.com',
+      'Cookie': 'PHPSESSID=f28kd9e55ih3m5l9m39ddfq0pd; _fw_crm_v=b7c41f54-b64e-4a4d-90e6-664b0b4f623b',
+      'Content-Length': requestData.length,
+      'Sec-Ch-Ua': '"Google Chrome";v="125", "Chromium";v="125", "Not.A/Brand";v="24"',
+      'Accept': 'text/html, */*; q=0.01',
+      'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+      'X-Requested-With': 'XMLHttpRequest',
+      'Sec-Ch-Ua-Mobile': '?0',
+      'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36',
+      'Sec-Ch-Ua-Platform': '"Windows"',
+      'Origin': 'https://monitor.m.tensordock.com',
+      'Sec-Fetch-Site': 'same-origin',
+      'Sec-Fetch-Mode': 'cors',
+      'Sec-Fetch-Dest': 'empty',
+      'Referer': `https://monitor.m.tensordock.com/report/uptime/${id}/`,
+      'Accept-Encoding': 'gzip, deflate',
+      'Accept-Language': 'en-US,en;q=0.9',
+      'Priority': 'u=1, i'
+    }
+  };
+
+  try {
+    const response = await axios.post(url, requestData, config);
+    const data = response.data;
+
+    const regex = /Highcharts\.chart\('([^']+)',\s*(\{[\s\S]*?\})\)/g;
+    let match;
+    const dictionary: { [key: string]: any } = {};
+
+    while ((match = regex.exec(data)) !== null) {
+      const key = match[1];
+      const value = match[2];
+
+      try {
+        const parsedValue = eval(`(${value})`);
+        delete parsedValue.tooltip;
+        delete parsedValue.plotOptions;
+        delete parsedValue.credits;
+        delete parsedValue.chart;
+        delete parsedValue.title;
+
+        dictionary[key] = parsedValue;
+      } catch (error) {
+        console.error('Error parsing object:', error);
+      }
+    }
+
+    return dictionary;
+  } catch (error) {
+    console.error('Error making the POST request:', error);
+    throw new Error('Failed to fetch data');
+  }
+};
