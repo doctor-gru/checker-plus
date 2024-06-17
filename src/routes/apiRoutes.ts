@@ -1,11 +1,10 @@
 import express from 'express';
-
-import { registerApiKey, allApiKeys } from '../controller/api';
-import { availableHosts } from '../controller/api';
+import { registerApiKey, allApiKeys, availableHosts, dockerGraphData } from '../controller/api'; // Import the new controller function
 import { requireLogin, requireApiKey } from '../middlewares';
-
+const url = require('url');
 const router = express.Router();
 
+// Existing routes
 router.post('/register', requireLogin, async (req, res) => {
   const data = await registerApiKey((req.user as any)._id);
   return res.status(200).send(data);
@@ -19,9 +18,10 @@ router.get('/keys', requireLogin, async (req, res) => {
 router.get('/hosts', requireApiKey, async (req, res) => {
   const data = await availableHosts();
   return res.status(200).send(data);
-})
+});
 
-router.get('/dockerGraphData', async (req, res) => {
+// graphdata route
+router.get('/dockerGraphData', requireLogin, async (req, res) => {
   const queryObject = url.parse(req.url, true).query;
   const id = queryObject.id;
   const duration = queryObject.duration;
@@ -32,7 +32,7 @@ router.get('/dockerGraphData', async (req, res) => {
 
   try {
     const data = await dockerGraphData(id, duration);
-    return res.status(200).json({"data":data});
+    return res.status(200).json(data);
   } catch (error) {
     return res.status(500).json({ error: "Internal server error" });
   }

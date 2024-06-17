@@ -3,7 +3,13 @@ import ApiKey from '../models/ApiKey';
 import Host from '../models/Host';
 import generateApiKey from 'generate-api-key';
 import { ControllerResponse } from '../types'
+import { IHostPerformance } from '../types'
 import { IHost } from '../types';
+import axios from 'axios';
+import { extractSeriesData } from '../utils/jsonUtils';
+import HostPerformance from '../models/Document';
+import { compareUnixTimestamps } from '../utils/jsonUtils';
+import { json } from 'stream/consumers';
 
 export const findApiKey = async (key: string): Promise<ControllerResponse> => {
   try {
@@ -109,7 +115,39 @@ export const updateHost = async (_id: string, updatedHost: IHost): Promise<Contr
     return { success: false, error: (e as Error).message };
   }
 }
+
+
+
 export const dockerGraphData = async (id: string, duration: string) => {
+  const IHostPerf = {
+    dockerId: id,
+    timestamp: 0,
+    gpuUtil: 0,
+    powerDraw: 0,
+    fanSpeed: 0,
+    temperature: 0,
+    gpuClock: 0,
+    memClock: 0,
+    memAlloc: 0,
+    memUtil: 0,
+    videoClock: 0,
+    smClock: 0
+  }
+  const mapper={
+    'CPU': 'cpuUsage',
+    'IOWait': 'IOwaitUsage',
+    'Steal': 'stealUsage',
+    'User': 'userUsage',
+    'System': 'systemUsage',
+    'RAM': 'ramUsage',
+    'Swap': 'swapUsage',
+    'Buffered': 'bufferedUsage',
+    'Cached': 'cachedUsage',
+    'In': 'networkIn',
+    'Out': 'networkOut',
+    'Disk': 'diskUsage'
+}
+
   const url = 'https://monitor.m.tensordock.com/auth.php';
   const requestData = `m=69&tx=${id}&u=${duration}`;
 
@@ -161,8 +199,39 @@ export const dockerGraphData = async (id: string, duration: string) => {
         console.error('Error parsing object:', error);
       }
     }
+    let json_response = extractSeriesData(dictionary);
+    json_response = {
+      ...IHostPerf,
+      ...json_response
+    };
+    const newDocument = new HostPerformance(json_response);
+    const existingDocument = await HostPerformance.findOne({ dockerId: newDocument.dockerId });
 
-    return dictionary;
+    if (existingDocument) {
+      if (compareUnixTimestamps(existingDocument.cpuUsage[existingDocument.cpuUsage.length - 1][0])){
+        return json_response;
+      }
+      await HostPerformance.updateOne({ _id: existingDocument._id }, {
+        $set: {
+          cpuUsage: newDocument.cpuUsage,
+          IOwaitUsage: newDocument.IOwaitUsage,
+          stealUsage: newDocument.stealUsage,
+          userUsage: newDocument.userUsage,
+          systemUsage: newDocument.systemUsage,
+          ramUsage: newDocument.ramUsage,
+          swapUsage: newDocument.swapUsage,
+          bufferedUsage: newDocument.bufferedUsage,
+          cachedUsage: newDocument.cachedUsage,
+          networkIn: newDocument.networkIn,
+          networkOut: newDocument.networkOut,
+          diskUsage: newDocument.diskUsage,
+          // Add more fields as needed
+        }
+      });
+    } else {
+      await newDocument.save();
+    }
+    return json_response;
   } catch (error) {
     console.error('Error making the POST request:', error);
     throw new Error('Failed to fetch data');
