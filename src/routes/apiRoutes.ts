@@ -21,26 +21,25 @@ router.get('/hosts', requireApiKey, async (req, res) => {
   return res.status(200).send(data);
 });
 
-// graphdata route
-// router.get('/dockerGraphData', requireLogin, async (req, res) => {
-//   const queryObject = url.parse(req.url, true).query;
-//   const id = queryObject.id;
-//   const duration = queryObject.duration;
+router.get('/rentedInstance', requireApiKey, async (req, res) => {
+  if (req.query.query === undefined) {
+    return res.status(200).send({ success: false, error: 'You need to provide query data' });
+  }
+  const queryObject = req.query.query as any;
 
-//   if (typeof id !== 'string' || typeof duration !== 'string') {
-//     return res.status(400).json({ error: 'Invalid parameters. `id` and `duration` must be strings.' });
-//   }
+  const id = queryObject.id;
+  const duration = queryObject.duration;
 
-//   try {
-//     const data = await dockerGraphData(id, duration);
-//     return res.status(200).json(data);
-//   } catch (error) {
-//     return res.status(500).json({ error: "Internal server error" });
-//   }
-// });
+  if (typeof id !== 'string' || typeof duration !== 'string') {
+    return res.status(200).send({ success: false, error: 'Invalid parameters. `id` and `duration` must be strings' });
+  }
 
-router.get('/test', async (req, res) => {
-  return res.status(200).json({data: await fetchTensordockInstance('99894b4dd500bf0af5a906eb8f85e1c3', '360')});
+  try {
+    const data = await fetchTensordockInstance(id, duration);
+    return res.status(200).send(data);
+  } catch (e) {
+    return res.status(500).send({ success: false, error: (e as Error).message });
+  }
 });
 
 export default router;
