@@ -21,13 +21,15 @@ export interface IHost {
   index?: string;
 }
 
-export interface IRentHost {
+export interface IRentInstance {
+  uuid: string;
   model: string;
   driverVersion: string;
-  vbiosVersion: string;
+  vBiosVersion: string;
+  metrics: IMetrics[];
 }
 
-export interface IHostPerformance {
+export interface IMetrics {
   timestamp: number;
   gpuUtil: number;
   powerDraw: number;

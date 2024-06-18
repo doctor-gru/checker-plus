@@ -3,13 +3,9 @@ import ApiKey from '../models/ApiKey';
 import Host from '../models/Host';
 import generateApiKey from 'generate-api-key';
 import { ControllerResponse } from '../types'
-import { IHostPerformance } from '../types'
-import { IHost } from '../types';
-import axios from 'axios';
-import { extractSeriesData } from '../utils/jsonUtils';
-import HostPerformance from '../models/Document';
-import { compareUnixTimestamps } from '../utils/jsonUtils';
-import { json } from 'stream/consumers';
+import { IRentInstance, IHost } from '../types';
+import { compareUnixTimestamps, fetchTensordockInstance } from '../utils/scraping';
+import RentInstance from '../models/RentedHosts';
 
 export const findApiKey = async (key: string): Promise<ControllerResponse> => {
   try {
@@ -116,124 +112,35 @@ export const updateHost = async (_id: string, updatedHost: IHost): Promise<Contr
   }
 }
 
-
-
-export const dockerGraphData = async (id: string, duration: string) => {
-  const IHostPerf = {
-    dockerId: id,
-    timestamp: 0,
-    gpuUtil: 0,
-    powerDraw: 0,
-    fanSpeed: 0,
-    temperature: 0,
-    gpuClock: 0,
-    memClock: 0,
-    memAlloc: 0,
-    memUtil: 0,
-    videoClock: 0,
-    smClock: 0
-  }
-  const mapper={
-    'CPU': 'cpuUsage',
-    'IOWait': 'IOwaitUsage',
-    'Steal': 'stealUsage',
-    'User': 'userUsage',
-    'System': 'systemUsage',
-    'RAM': 'ramUsage',
-    'Swap': 'swapUsage',
-    'Buffered': 'bufferedUsage',
-    'Cached': 'cachedUsage',
-    'In': 'networkIn',
-    'Out': 'networkOut',
-    'Disk': 'diskUsage'
-}
-
-  const url = 'https://monitor.m.tensordock.com/auth.php';
-  const requestData = `m=69&tx=${id}&u=${duration}`;
-
-  const config = {
-    headers: {
-      'Host': 'monitor.m.tensordock.com',
-      'Cookie': 'PHPSESSID=f28kd9e55ih3m5l9m39ddfq0pd; _fw_crm_v=b7c41f54-b64e-4a4d-90e6-664b0b4f623b',
-      'Content-Length': requestData.length,
-      'Sec-Ch-Ua': '"Google Chrome";v="125", "Chromium";v="125", "Not.A/Brand";v="24"',
-      'Accept': 'text/html, */*; q=0.01',
-      'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
-      'X-Requested-With': 'XMLHttpRequest',
-      'Sec-Ch-Ua-Mobile': '?0',
-      'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36',
-      'Sec-Ch-Ua-Platform': '"Windows"',
-      'Origin': 'https://monitor.m.tensordock.com',
-      'Sec-Fetch-Site': 'same-origin',
-      'Sec-Fetch-Mode': 'cors',
-      'Sec-Fetch-Dest': 'empty',
-      'Referer': `https://monitor.m.tensordock.com/report/uptime/${id}/`,
-      'Accept-Encoding': 'gzip, deflate',
-      'Accept-Language': 'en-US,en;q=0.9',
-      'Priority': 'u=1, i'
-    }
-  };
-
+export const updateTensordockInstances = async (id: string, duration: string): Promise<ControllerResponse> => {
   try {
-    const response = await axios.post(url, requestData, config);
-    const data = response.data;
-
-    const regex = /Highcharts\.chart\('([^']+)',\s*(\{[\s\S]*?\})\)/g;
-    let match;
-    const dictionary: { [key: string]: any } = {};
-
-    while ((match = regex.exec(data)) !== null) {
-      const key = match[1];
-      const value = match[2];
-
-      try {
-        const parsedValue = eval(`(${value})`);
-        delete parsedValue.tooltip;
-        delete parsedValue.plotOptions;
-        delete parsedValue.credits;
-        delete parsedValue.chart;
-        delete parsedValue.title;
-
-        dictionary[key] = parsedValue;
-      } catch (error) {
-        console.error('Error parsing object:', error);
-      }
-    }
-    let json_response = extractSeriesData(dictionary);
-    json_response = {
-      ...IHostPerf,
-      ...json_response
-    };
-    const newDocument = new HostPerformance(json_response);
-    const existingDocument = await HostPerformance.findOne({ dockerId: newDocument.dockerId });
+    const instance: IRentInstance = await fetchTensordockInstance(id, duration);
+    const newDocument = new RentInstance(instance);
+    const existingDocument = await RentInstance.findOne({ uuid: id });
 
     if (existingDocument) {
-      if (compareUnixTimestamps(existingDocument.cpuUsage[existingDocument.cpuUsage.length - 1][0])){
-        return json_response;
+      if (compareUnixTimestamps(existingDocument.metrics[existingDocument.metrics.length - 1].timestamp)){
+        return {
+          success: true,
+          data: existingDocument,
+        };
       }
-      await HostPerformance.updateOne({ _id: existingDocument._id }, {
+      await RentInstance.updateOne({ _id: existingDocument._id }, {
         $set: {
-          cpuUsage: newDocument.cpuUsage,
-          IOwaitUsage: newDocument.IOwaitUsage,
-          stealUsage: newDocument.stealUsage,
-          userUsage: newDocument.userUsage,
-          systemUsage: newDocument.systemUsage,
-          ramUsage: newDocument.ramUsage,
-          swapUsage: newDocument.swapUsage,
-          bufferedUsage: newDocument.bufferedUsage,
-          cachedUsage: newDocument.cachedUsage,
-          networkIn: newDocument.networkIn,
-          networkOut: newDocument.networkOut,
-          diskUsage: newDocument.diskUsage,
-          // Add more fields as needed
+          // TODO: update metrics data
         }
       });
     } else {
       await newDocument.save();
     }
-    return json_response;
-  } catch (error) {
-    console.error('Error making the POST request:', error);
-    throw new Error('Failed to fetch data');
+    return {
+      success: true,
+      data: newDocument,
+    };
+  } catch (e) {
+    return {
+      success: false,
+      error: (e as Error).message,
+    }
   }
 };

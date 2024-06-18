@@ -1,7 +1,8 @@
 import express from 'express';
-import { registerApiKey, allApiKeys, availableHosts, dockerGraphData } from '../controller/api'; // Import the new controller function
+import { registerApiKey, allApiKeys, availableHosts } from '../controller/api'; // Import the new controller function
 import { requireLogin, requireApiKey } from '../middlewares';
-const url = require('url');
+import { fetchTensordockInstance } from '../utils/scraping';
+
 const router = express.Router();
 
 // Existing routes
@@ -21,21 +22,25 @@ router.get('/hosts', requireApiKey, async (req, res) => {
 });
 
 // graphdata route
-router.get('/dockerGraphData', requireLogin, async (req, res) => {
-  const queryObject = url.parse(req.url, true).query;
-  const id = queryObject.id;
-  const duration = queryObject.duration;
+// router.get('/dockerGraphData', requireLogin, async (req, res) => {
+//   const queryObject = url.parse(req.url, true).query;
+//   const id = queryObject.id;
+//   const duration = queryObject.duration;
 
-  if (typeof id !== 'string' || typeof duration !== 'string') {
-    return res.status(400).json({ error: 'Invalid parameters. `id` and `duration` must be strings.' });
-  }
+//   if (typeof id !== 'string' || typeof duration !== 'string') {
+//     return res.status(400).json({ error: 'Invalid parameters. `id` and `duration` must be strings.' });
+//   }
 
-  try {
-    const data = await dockerGraphData(id, duration);
-    return res.status(200).json(data);
-  } catch (error) {
-    return res.status(500).json({ error: "Internal server error" });
-  }
+//   try {
+//     const data = await dockerGraphData(id, duration);
+//     return res.status(200).json(data);
+//   } catch (error) {
+//     return res.status(500).json({ error: "Internal server error" });
+//   }
+// });
+
+router.get('/test', async (req, res) => {
+  return res.status(200).json({data: await fetchTensordockInstance('99894b4dd500bf0af5a906eb8f85e1c3', '360')});
 });
 
 export default router;
