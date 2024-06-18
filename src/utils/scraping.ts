@@ -1,5 +1,43 @@
 import { IRentInstance } from "../types";
 
+interface HighchartsConfig {
+  [key: string]: any;
+}
+
+function processData(data: string): Record<string, HighchartsConfig> {
+  // Define the regular expression to match Highcharts.chart objects
+  const regex = /Highcharts\.chart\('([^']+)',\s*(\{[\s\S]*?\})\)/g;
+  let match: RegExpExecArray | null;
+  const dictionary: Record<string, HighchartsConfig> = {};
+
+  // Loop through all matches
+  while ((match = regex.exec(data)) !== null) {
+      const key = match[1];
+      const value = match[2];
+
+      // Parse the object string into an actual JavaScript object
+      try {
+          const parsedValue: HighchartsConfig = eval(`(${value})`);
+          
+          // Remove specified properties
+          delete parsedValue.tooltip;
+          delete parsedValue.plotOptions;
+          delete parsedValue.credits;
+          delete parsedValue.chart;
+          delete parsedValue.title;
+
+          dictionary[key] = parsedValue;
+      } catch (e) {
+          console.error(`Error parsing value for key ${key}:`, e);
+      }
+  }
+
+  return dictionary;
+}
+
+
+
+
 export const extractSeriesData = (data: any): any => {
     const result: { [key: string]: any } = {};
 
@@ -71,7 +109,6 @@ export const fetchTensordockInstance = async (id: string, duration: string): Pro
   const headers = {
     'Host': 'monitor.m.tensordock.com',
     'Cookie': 'PHPSESSID=f28kd9e55ih3m5l9m39ddfq0pd; _fw_crm_v=b7c41f54-b64e-4a4d-90e6-664b0b4f623b',
-    'Content-Length': reqParams.length.toString(),
     'Sec-Ch-Ua': '"Google Chrome";v="125", "Chromium";v="125", "Not.A/Brand";v="24"',
     'Accept': 'text/html, */*; q=0.01',
     'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
@@ -108,33 +145,14 @@ export const fetchTensordockInstance = async (id: string, duration: string): Pro
       );
 
       const data = await response.text();
-      const regex = /Highcharts\.chart\('([^']+)',\s*(\{[\s\S]*?\})\)/g;
+      
 
       let match;
-      const dictionary: { [key: string]: any } = {};
+      const dictionary: Record<string, HighchartsConfig> = processData(data);
+      const jsonResponse = extractSeriesData(dictionary);
+      return resolve(jsonResponse);
 
-      while ((match = regex.exec(data)) !== null) {
-        const key = match[1];
-        const value = match[2];
-
-        try {
-          const parsedValue = eval(`(${value})`);
-          delete parsedValue.tooltip;
-          delete parsedValue.plotOptions;
-          delete parsedValue.credits;
-          delete parsedValue.chart;
-          delete parsedValue.title;
-
-          dictionary[key] = parsedValue;
-        } catch (error) {
-          console.error('Error parsing object:', error);
-          return reject();
-        }
-
-        const jsonResponse = extractSeriesData(dictionary);
-        
-        return resolve(jsonResponse);
-      }
+      
     } catch (e) {
       console.log(e);
       return reject();
