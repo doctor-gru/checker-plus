@@ -22,13 +22,12 @@ router.get('/hosts', requireApiKey, async (req, res) => {
 });
 
 router.get('/rentedInstance', requireApiKey, async (req, res) => {
-  if (req.query.query === undefined) {
+  if (req.query.id === undefined || req.query.duration === undefined) {
     return res.status(200).send({ success: false, error: 'You need to provide query data' });
   }
-  const queryObject = req.query.query as any;
-
-  const id = queryObject.id;
-  const duration = queryObject.duration;
+  
+  const id = req.query.id;
+  const duration = req.query.duration;
 
   if (typeof id !== 'string' || typeof duration !== 'string') {
     return res.status(200).send({ success: false, error: 'Invalid parameters. `id` and `duration` must be strings' });
