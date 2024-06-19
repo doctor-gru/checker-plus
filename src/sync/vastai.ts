@@ -1,6 +1,8 @@
-import { IHost } from '../types';
+import { IHost, ILocation } from '../types';
 import { getCurrentTimeHr } from '../utils/time';
 import { logger } from '../utils/logger';
+import { convertToUuid } from '../utils/uuid';
+import { countryCodeToName } from '../utils/regional';
 
 const requestParams = {
   'verified': { 'eq': true },
@@ -35,19 +37,67 @@ export const _fetch = (): Promise<IHost[]> => {
           method: 'GET',
         }
       );
-      
+
       const data = await response.json();
       const bundles = data.offers ?? [];
 
       let hosts: IHost[] = [];
       
-      hosts = bundles.map((bundle: any) => ({
-        model: `${bundle.gpu_name} x${bundle.gpu_lanes}`,
-        costPerHour: bundle.discounted_dph_total,
-        index: `${bundle.machine_id}`,
-        deviceType: 'GPU',
-        provider: 'VastAI',
-      }));
+      hosts = bundles.map((bundle: any) => {
+        let location: ILocation = {
+          city: 'Not Specified',
+          country: 'Not Specified',
+          region: 'Not Specified',
+        }
+        const geolocation = bundle.geolocation;
+        if (geolocation != null) {
+          const [region, country] = (geolocation as string).replace(' ', '').split(',');
+          location.country = countryCodeToName(country);
+          location.region = region;
+        }
+
+        return {
+          hostId: convertToUuid(bundle.bundle_id),
+          provider: 'VAI',
+          subindex: bundle.bundle_id,
+          location: location,
+          specs: {
+            cpu: {
+              amount: bundle.cpu_cores ?? 0,
+              price: 0,
+              type: bundle.cpu_name != null ? bundle.cpu_name.toUpperCase() : "No CPU",
+            },
+            gpu: [{
+              amount: bundle.num_gpus,
+              price: bundle.search.gpuCostPerHour,
+              type: bundle.gpu_name,
+              vram: bundle.gpu_total_ram,
+            }],
+            ram: {
+              amount: 0,
+              price: 0,
+            },
+            storage: {
+              amount: bundle.disk_space / 10,
+              price: 0,
+            },
+            restrictions: [{
+              cpu: {
+                min: bundle.cpu_cores ?? 0,
+                max: bundle.cpu_cores ?? 0,
+              },
+              gpu: {
+                min: bundle.num_gpus,
+                max: bundle.num_gpus,
+              },
+              ram: {
+                min: 0,
+                max: 0,
+              }
+            }],
+          },
+        }
+      });
 
       const end = getCurrentTimeHr();
 
@@ -56,7 +106,7 @@ export const _fetch = (): Promise<IHost[]> => {
 
       return resolve(hosts);
     } catch (e) {
-      return resolve([]);
+      return reject(e);
     }
   });
 }

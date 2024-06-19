@@ -36,6 +36,9 @@ export const COOKIE_KEY = process.env.COOKIE_KEY as string;
 
 export const FETCH_INTERVAL = (process.env.FETCH_INTERVAL || 10000) as number;
 
+export const TENSORDOCK_APIKEY = (process.env.TENSORDOCK_APIKEY || '') as string;
+export const TENSORDOCK_APITOKEN = (process.env.TENSORDOCK_APITOKEN || '') as string
+
 export const PAPERSPACE_APIKEY = (process.env.PAPERSPACE_APIKEY || '') as string;
 export const PAPERSPACE_EMAIL = (process.env.PAPERSPACE_EMAIL || '') as string;
 export const PAPERSPACE_PWD = (process.env.PAPERSPACE_PWD || '') as string;

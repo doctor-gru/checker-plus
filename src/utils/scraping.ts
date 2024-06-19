@@ -35,9 +35,6 @@ function processData(data: string): Record<string, HighchartsConfig> {
   return dictionary;
 }
 
-
-
-
 export const extractSeriesData = (data: any): any => {
     const result: { [key: string]: any } = {};
 

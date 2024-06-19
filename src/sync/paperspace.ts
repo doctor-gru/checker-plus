@@ -3,6 +3,7 @@ import { getCurrentTimeHr } from '../utils/time';
 import { logger } from '../utils/logger';
 import { PAPERSPACE_EMAIL, PAPERSPACE_PWD, PAPERSPACE_REQUEST_VALIDATE_KEY } from '../utils/secrets';
 import { appCache } from '../utils/cache';
+import { writeFile } from 'fs';
 
 const _authenticate = async (): Promise<any> => {
   const currentDate = new Date();
@@ -84,6 +85,8 @@ export const _fetch = (): Promise<IHost[]> => {
         teamNamespace = appCache.get("teamNamespace");
       }
 
+      console.log(`token ${teamNamespace}_${authenticateToken}`);
+
       const response = await fetch(
         'https://api.paperspace.com/trpc/machines.createFormDataV2', 
         {
@@ -94,20 +97,21 @@ export const _fetch = (): Promise<IHost[]> => {
         }
       );
 
+
       const data = await response.json();
 
       const instances = data.result.data.json.machineTypes ?? [];
 
       let hosts: IHost[] = [];
       
-      hosts = instances
-        .filter((instance: any) => (instance.defaultUsageRates as any[]).findIndex((rate) => rate.type == "hourly") != -1)
-        .map((instance: any) => ({
-          model: instance.label,
-          costPerHour: (instance.defaultUsageRates as any[]).find((rate) => rate.type == "hourly").rate ?? 0,
-          deviceType: 'GPU',
-          provider: 'Paperspace',
-        }));
+      // hosts = instances
+      //   .filter((instance: any) => (instance.defaultUsageRates as any[]).findIndex((rate) => rate.type == "hourly") != -1)
+      //   .map((instance: any) => ({
+      //     model: instance.label,
+      //     costPerHour: (instance.defaultUsageRates as any[]).find((rate) => rate.type == "hourly").rate ?? 0,
+      //     deviceType: 'GPU',
+      //     provider: 'Paperspace',
+      //   }));
       
 
       const end = getCurrentTimeHr();

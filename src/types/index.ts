@@ -1,3 +1,8 @@
+export interface ControllerResponse {
+  success: boolean;
+  error?: string;
+  data?: any;
+}
 
 export interface IUser {
   username: string;
@@ -13,12 +18,55 @@ export interface IApiKey {
   expiredIn: Date;
 }
 
+export interface ILocation {
+  city: string;
+  country: string;
+  region: string;
+}
+
+export interface ICpu {
+  amount: number;
+  price: number;
+  type: string;
+}
+
+export interface IGpu {
+  amount: number;
+  price: number;
+  type: string;
+  vram: number;
+}
+
+export interface IRamOrStorage {
+  amount: number;
+  price: number;
+}
+
+export interface IMinMax {
+  max: number;
+  min: number;
+}
+
+export interface IRestriction {
+  cpu: IMinMax,
+  ram: IMinMax,
+  storage: IMinMax,
+}
+
+export interface ISpecs {
+  cpu: ICpu;
+  gpu: IGpu[];
+  ram: IRamOrStorage;
+  storage: IRamOrStorage;
+  restrictions: IRestriction[];
+}
+
 export interface IHost {
-  model: string;
-  costPerHour: number;
+  hostId: string;
   provider: string;
-  deviceType: string;
-  index?: string;
+  subindex: string;
+  location: ILocation;
+  specs: ISpecs;
 }
 
 export interface IRentInstance {
@@ -41,9 +89,4 @@ export interface IMetrics {
   memUtil: number;
   videoClock: number;
   smClock: number;
-}
-export interface ControllerResponse {
-  success: boolean;
-  error?: string;
-  data?: any;
 }
