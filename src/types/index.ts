@@ -41,6 +41,11 @@ export interface IMetrics {
   memUtil: number;
   videoClock: number;
   smClock: number;
+  cpuUsage: number[][];
+  ramUsage: number[][];
+  networkIn: number[][];
+  networkOut: number[][];
+  diskUsage: number[][];
 }
 export interface ControllerResponse {
   success: boolean;

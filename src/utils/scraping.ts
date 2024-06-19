@@ -102,7 +102,7 @@ export const compareUnixTimestamps = (givenUnixTime: number): boolean => {
     }
 }
 
-export const fetchTensordockInstance = async (id: string, duration: string): Promise<any> => { // TODO: after fixing scraping, set the return type as `IRentInstance`
+export const fetchTensordockInstance = async (id: string, duration: string): Promise<IRentInstance> => { // TODO: after fixing scraping, set the return type as `IRentInstance`
   const reqUrl = 'https://monitor.m.tensordock.com/auth.php';
   const reqParams = `m=69&tx=${id}&u=${duration}`;
 
@@ -150,12 +150,17 @@ export const fetchTensordockInstance = async (id: string, duration: string): Pro
       let match;
       const dictionary: Record<string, HighchartsConfig> = processData(data);
       const jsonResponse = extractSeriesData(dictionary);
-      return resolve(jsonResponse);
+      instance.metrics=jsonResponse;
+      instance.uuid=id;
+      instance.model='0';
+      instance.driverVersion='0';
+      instance.vBiosVersion='0';
+      return resolve(instance);
 
       
     } catch (e) {
       console.log(e);
-      return reject();
+      return reject(e);
     }
   });
 }

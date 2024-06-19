@@ -61,6 +61,26 @@ const Metrics = new Schema<MetricsDocument>({
     required: true,
     default: 0,
   },
+  cpuUsage: {
+     type: [[Number]], 
+     required: true 
+    },
+  ramUsage: {
+     type: [[Number]], 
+     required: true 
+    },
+  networkIn: {
+     type: [[Number]], 
+     required: true 
+    },
+  networkOut: {
+     type: [[Number]], 
+     required: true 
+    },
+  diskUsage: {
+     type: [[Number]], 
+     required: true 
+    },
 });
 
 const RentedHosts = new Schema<RentInstanceDocument>({

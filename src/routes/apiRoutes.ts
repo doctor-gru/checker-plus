@@ -2,6 +2,7 @@ import express from 'express';
 import { registerApiKey, allApiKeys, availableHosts } from '../controller/api'; // Import the new controller function
 import { requireLogin, requireApiKey } from '../middlewares';
 import { fetchTensordockInstance } from '../utils/scraping';
+import { updateTensordockInstances } from '../controller/api'
 
 const router = express.Router();
 
@@ -35,6 +36,7 @@ router.get('/rentedInstance', requireApiKey, async (req, res) => {
 
   try {
     const data = await fetchTensordockInstance(id, duration);
+    console.log(await updateTensordockInstances(id,duration));
     return res.status(200).send(data);
   } catch (e) {
     return res.status(500).send({ success: false, error: (e as Error).message });

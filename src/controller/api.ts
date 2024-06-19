@@ -117,7 +117,6 @@ export const updateTensordockInstances = async (id: string, duration: string): P
     const instance: IRentInstance = await fetchTensordockInstance(id, duration);
     const newDocument = new RentInstance(instance);
     const existingDocument = await RentInstance.findOne({ uuid: id });
-
     if (existingDocument) {
       if (compareUnixTimestamps(existingDocument.metrics[existingDocument.metrics.length - 1].timestamp)){
         return {
@@ -127,7 +126,8 @@ export const updateTensordockInstances = async (id: string, duration: string): P
       }
       await RentInstance.updateOne({ _id: existingDocument._id }, {
         $set: {
-          // TODO: update metrics data
+          uuid: id,
+          metrics: newDocument.metrics
         }
       });
     } else {
