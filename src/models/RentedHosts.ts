@@ -61,7 +61,7 @@ const Metrics = new Schema<MetricsDocument>({
     required: true,
     default: 0,
   },
-});
+}, { _id: false });
 
 const RentedHosts = new Schema<RentInstanceDocument>({
   uuid: {
