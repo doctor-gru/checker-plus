@@ -1,7 +1,7 @@
 import express from 'express';
 import Redis from 'ioredis';
 import mongoose from 'mongoose';
-
+import { updateRentedHostInfo } from './src/utils/scheduler'
 import { MONGO_URI, PORT } from './src/utils/secrets';
 
 import { configureExpress } from './src/config';
@@ -35,5 +35,6 @@ function connect() {
 function listen() {
   app.listen(PORT, () => {
     console.log('App listening on port: ' + PORT);
+    updateRentedHostInfo()
   });
 }
