@@ -72,6 +72,7 @@ export const extractSeriesData = (data: any): any => {
 }
 
 
+
 export const compareUnixTimestamps = (givenUnixTime: number): boolean => {
     // Get current time in milliseconds
     const currentTimeMillis = Date.now();
@@ -97,6 +98,49 @@ export const compareUnixTimestamps = (givenUnixTime: number): boolean => {
     } else {
         return true;
     }
+}
+
+export function convertTimeToUnix() {
+  // Get the current time in UTC+00:00
+  let currentTime = new Date();
+
+  // Create a new Date object with seconds and milliseconds set to zero
+  let formattedTime = new Date(Date.UTC(
+    currentTime.getUTCFullYear(),
+    currentTime.getUTCMonth(),
+    currentTime.getUTCDate(),
+    currentTime.getUTCHours(),
+    currentTime.getUTCMinutes(),
+    0, 0
+  ));
+
+  // Convert the formatted time to a Unix timestamp
+  let unixTimestamp = Math.floor(formattedTime.getTime() / 1000);
+
+  return unixTimestamp;
+}
+
+export async function fetchVastAiInstances(): Promise<any> {
+  const url = "https://console.vast.ai/api/v0/instances";
+  var myHeaders = new Headers();
+  myHeaders.append("Accept", "application/json");
+  myHeaders.append("Authorization", "Bearer "+process.env.VASTAI_APIKEY);
+  var requestOptions = {
+    method: 'GET',
+    headers: myHeaders,
+  };
+
+  try {
+    const response = await fetch(url,requestOptions);
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Error fetching instances:', error);
+    throw error;
+  }
 }
 
 export const fetchTensordockInstance = async (id: string, duration: string): Promise<IRentInstance> => {
@@ -140,11 +184,13 @@ export const fetchTensordockInstance = async (id: string, duration: string): Pro
           headers: headers,
         }
       );
-
       const data = await response.text();
       
       const dictionary: Record<string, HighchartsConfig> = processData(data);
       const jsonResponse = extractSeriesData(dictionary);
+
+      const vastAiResponse = await fetchVastAiInstances()
+      console.log(vastAiResponse)
 
       instance.metrics = jsonResponse;
 
@@ -155,13 +201,13 @@ export const fetchTensordockInstance = async (id: string, duration: string): Pro
 
       instance.metrics = jsonResponse.cpuUsage.map((item: number[], index: number) => ({
         timestamp: item[0],
-        gpuUtil: 0,
+        gpuUtil: vastAiResponse['instances'][0]['gpu_util'],
         powerDraw: 0,
         fanSpeed: 0,
-        temperature: 0,
+        temperature: vastAiResponse['instances'][0]['gpu_temp'],
         gpuClock: 0,
         memClock: 0,
-        memAlloc: 0,
+        memAlloc: vastAiResponse['instances'][0]['gpu_util'],
         memUtil: jsonResponse.ramUsage[index][1] / 100,
         videoClock: 0,
         smClock: item[1] / 100,
