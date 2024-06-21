@@ -89,4 +89,5 @@ export interface IMetrics {
   memUtil: number;
   videoClock: number;
   smClock: number;
+  cpuUsage: number;
 }
