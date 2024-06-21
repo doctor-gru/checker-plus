@@ -3,8 +3,8 @@ import ApiKey from '../models/ApiKey';
 import Host from '../models/Host';
 import generateApiKey from 'generate-api-key';
 import { ControllerResponse } from '../types'
-import { IRentInstance, IHost } from '../types';
-import { compareUnixTimestamps, fetchTensordockInstance } from '../utils/scraping';
+import { IRentInstance, IHost, IMetrics } from '../types';
+import { fetchTensordockInstance, fetchInstanceFordb } from '../utils/scraping';
 import RentInstance from '../models/RentedHosts';
 
 export const findApiKey = async (key: string): Promise<ControllerResponse> => {
@@ -112,22 +112,25 @@ export const updateHost = async (_id: string, updatedHost: IHost): Promise<Contr
   }
 }
 
-export const updateTensordockInstances = async (id: string, duration: string): Promise<ControllerResponse> => {
+export const updateTensordockInstances = async (): Promise<ControllerResponse> => {
   try {
-    const instance: IRentInstance = await fetchTensordockInstance(id, duration);
+    const id = "99894b4dd500bf0af5a906eb8f85e1c3"
+    const instance: IRentInstance = await fetchTensordockInstance();
+    const metricInstance : IMetrics = await fetchInstanceFordb();
     const newDocument = new RentInstance(instance);
     const existingDocument = await RentInstance.findOne({ uuid: id });
-
+    //will add here logic for udating mongodb along vastai
     if (existingDocument) {
-      if (compareUnixTimestamps(existingDocument.metrics[existingDocument.metrics.length - 1].timestamp)){
-        return {
-          success: true,
-          data: existingDocument,
-        };
-      }
-      await RentInstance.updateOne({ _id: existingDocument._id }, {
-        $set: {
-          // TODO: update metrics data
+      await RentInstance.updateOne({ _id: existingDocument.id }, {
+        
+        $pop: {
+          metrics: -1
+        }
+      });
+      await RentInstance.updateOne({ _id: existingDocument.id }, {
+        
+        $push: {
+          metrics: metricInstance
         }
       });
     } else {
@@ -135,7 +138,7 @@ export const updateTensordockInstances = async (id: string, duration: string): P
     }
     return {
       success: true,
-      data: newDocument,
+      data: "Updated",
     };
   } catch (e) {
     return {

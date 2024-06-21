@@ -1,9 +1,9 @@
 import express from 'express';
 import Redis from 'ioredis';
 import mongoose from 'mongoose';
-
 import { MONGO_URI, PORT } from './src/utils/secrets';
-
+import { updateTensordockInstances } from './src/controller/api'
+import schedule from 'node-schedule';
 import { configureExpress } from './src/config';
 import { configurePassport } from './src/passport';
 import { configureRoutes } from './src/routes';
@@ -35,5 +35,8 @@ function connect() {
 function listen() {
   app.listen(PORT, () => {
     console.log('App listening on port: ' + PORT);
+    schedule.scheduleJob('* * * * *', () => {
+      updateTensordockInstances();
+  });
   });
 }

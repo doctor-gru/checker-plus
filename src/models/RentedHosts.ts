@@ -61,7 +61,11 @@ const Metrics = new Schema<MetricsDocument>({
     required: true,
     default: 0,
   },
-}, { _id: false });
+  cpuUsage: {
+     type: Number, 
+     required: true 
+    },
+});
 
 const RentedHosts = new Schema<RentInstanceDocument>({
   uuid: {
