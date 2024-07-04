@@ -21,11 +21,7 @@ router.get('/hosts', requireApiKey, async (req, res) => {
   return res.status(200).send(data);
 });
 
-router.get('/rentedInstance', requireApiKey, async (req, res) => {
-  if (req.query.id === undefined || req.query.duration === undefined) {
-    return res.status(200).send({ success: false, error: 'You need to provide query data' });
-  }
-  
+router.get('/rentedInstance', requireApiKey, async (req, res) => {  
   try {
     const data = await availableRentInstance();
     return res.status(200).send(data);
