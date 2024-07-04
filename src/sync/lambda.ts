@@ -17,6 +17,9 @@ export const _fetch = (): Promise<IHost[]> => {
           }
         }
       );
+      if (!response.ok) {
+        throw new Error(`FAILED STATUS ${response.status}`);
+      }
 
       const instances = await response.json();
 
@@ -38,12 +41,12 @@ export const _fetch = (): Promise<IHost[]> => {
       
       const end = getCurrentTimeHr();
 
-      const currentDate = new Date();
-      logger.info(`SYNC [${currentDate.toUTCString()}] FETCHED ${hosts.length} HOSTS FROM LAMBDA - ${((end - begin) / 1e6)} ms`);
+      logger.info(`SYNC FETCHED ${hosts.length} HOSTS FROM LAMBDA - ${((end - begin) / 1e6)} ms`);
 
       return resolve(hosts);
     } catch (e) {
-      return resolve([]);
+      logger.error(`SYNC FETCHING HOSTS FROM LAMBDA FAILED ${(e as Error).message.toUpperCase().slice(0, 30)}`);
+      return reject(e);
     }
   });
 }

@@ -37,6 +37,9 @@ export const _fetch = (): Promise<IHost[]> => {
           method: 'GET',
         }
       );
+      if (!response.ok) {
+        throw new Error(`FAILED STATUS ${response.status}`);
+      }
 
       const data = await response.json();
       const bundles = data.offers ?? [];
@@ -101,11 +104,11 @@ export const _fetch = (): Promise<IHost[]> => {
 
       const end = getCurrentTimeHr();
 
-      const currentDate = new Date();
-      logger.info(`SYNC [${currentDate.toUTCString()}] FETCHED ${hosts.length} HOSTS FROM VASTAI - ${((end - begin) / 1e6)} ms`);
+      logger.info(`SYNC FETCHED ${hosts.length} HOSTS FROM VASTAI - ${((end - begin) / 1e6)} ms`);
 
       return resolve(hosts);
     } catch (e) {
+      logger.error(`SYNC FETCHING HOSTS FROM VASTAI FAILED ${(e as Error).message.toUpperCase().slice(0, 30)}`);
       return reject(e);
     }
   });

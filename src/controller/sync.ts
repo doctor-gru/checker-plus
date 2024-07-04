@@ -1,12 +1,11 @@
-import { _fetch as fetchTensorDock } from './tensordock'
-import { _fetch as fetchVastAI } from './vastai';
-import { _fetch as fetchPaperspace} from './paperspace';
+import { _fetch as fetchTensorDock } from '../sync/tensordock'
+import { _fetch as fetchVastAI } from '../sync/vastai';
+import { _fetch as fetchPaperspace} from '../sync/paperspace';
 import { FETCH_INTERVAL } from '../utils/secrets';
-import { availableHosts, removeHosts, insertHosts } from '../controller/api';
+import { availableHosts, removeHosts, insertHosts } from './api';
 import { HostDocument } from '../models/Host';
 import { IHost } from '../types';
-import { logger } from '../utils/logger';
-
+import { ControllerResponse } from '../types';
 
 // Easy and simple markup for now
 const markup = (host: IHost) => {
@@ -25,7 +24,7 @@ const markup = (host: IHost) => {
   }
 }
 
-export const syncInstances = async () => {
+export const updateAvailableInstances = async (): Promise<ControllerResponse> => {
   try {
     // const [vastAI, tensorDock, paperspace] = await Promise.all([
     //   fetchTensorDock(),
@@ -67,12 +66,17 @@ export const syncInstances = async () => {
         throw new Error(response.error);
     }
 
-    const currentDate = new Date();    
-    logger.info(`SYNC [${currentDate.toUTCString()}] (${removingList.length}) REMOVED (${allHosts.length}) INSERTED`);
+    return {
+      success: true,
+      data: {
+        removed: removingList.length,
+        inserted: allHosts.length,
+      }
+    };
   } catch (e) {
-    const currentDate = new Date();    
-    logger.error(`SYNC [${currentDate.toUTCString()}] FAILED ${(e as Error).message.toUpperCase().slice(0, 30)}`);
+    return {
+      success: false,
+      error: (e as Error).message.toUpperCase().slice(0, 30),
+    };
   }
-
-  setTimeout(syncInstances, FETCH_INTERVAL);
 }

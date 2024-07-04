@@ -3,11 +3,8 @@ import { getCurrentTimeHr } from '../utils/time';
 import { logger } from '../utils/logger';
 import { PAPERSPACE_EMAIL, PAPERSPACE_PWD, PAPERSPACE_REQUEST_VALIDATE_KEY } from '../utils/secrets';
 import { appCache } from '../utils/cache';
-import { writeFile } from 'fs';
 
-const _authenticate = async (): Promise<any> => {
-  const currentDate = new Date();
-
+export const _authenticate = async (): Promise<any> => {
   const credential = {
     email: PAPERSPACE_EMAIL,
     password: PAPERSPACE_PWD,
@@ -22,10 +19,13 @@ const _authenticate = async (): Promise<any> => {
         'Content-Type': 'application/json'
       }
     });
+    if (!response.ok) {
+      throw new Error(`FAILED STATUS ${response.status}`);
+    }
 
     const data = await response.json();
     if (response.status != 200) {
-      logger.error(`SYNC [${currentDate.toUTCString()}] LOGIN FAILED WITH INVALID CREDENTIALS`);
+      logger.error(`SYNC LOGIN FAILED WITH INVALID CREDENTIALS`);
       return {
         success: false,
         error: 'Invalid credentials'
@@ -41,14 +41,14 @@ const _authenticate = async (): Promise<any> => {
     if (data.user.userTeam.length > 0)
       teamNamespace = data.user.userTeam[0].handle;
     else {
-      logger.error(`SYNC [${currentDate.toUTCString()}] FAILURE PARSING RESPOSE`);
+      logger.error(`SYNC FAILURE PARSING RESPOSE`);
       return {
         success: false,
         error: 'Invalid response'
       };
     }
 
-    logger.info(`SYNC [${currentDate.toUTCString()}] REFRESHED PAPERSPACE AUTHENTICATE TOKEN`);
+    logger.info(`SYNC REFRESHED PAPERSPACE AUTHENTICATE TOKEN`);
 
     appCache.mset([
       { key: "authToken", val: authenticateToken, ttl: ttl },
@@ -56,7 +56,7 @@ const _authenticate = async (): Promise<any> => {
     ])
     return { success: true };
   } catch (err) {
-    logger.error(`SYNC [${currentDate.toUTCString()}] FAILURE DURING REQUEST`);
+    logger.error(`SYNC FAILURE DURING REQUEST`);
     return {
       success: false,
       error: 'Request failed'
@@ -85,8 +85,6 @@ export const _fetch = (): Promise<IHost[]> => {
         teamNamespace = appCache.get("teamNamespace");
       }
 
-      console.log(`token ${teamNamespace}_${authenticateToken}`);
-
       const response = await fetch(
         'https://api.paperspace.com/trpc/machines.createFormDataV2', 
         {
@@ -96,7 +94,9 @@ export const _fetch = (): Promise<IHost[]> => {
           },
         }
       );
-
+      if (!response.ok) {
+        throw new Error(`FAILED STATUS ${response.status}`);
+      }
 
       const data = await response.json();
 
@@ -104,24 +104,62 @@ export const _fetch = (): Promise<IHost[]> => {
 
       let hosts: IHost[] = [];
       
-      // hosts = instances
-      //   .filter((instance: any) => (instance.defaultUsageRates as any[]).findIndex((rate) => rate.type == "hourly") != -1)
-      //   .map((instance: any) => ({
-      //     model: instance.label,
-      //     costPerHour: (instance.defaultUsageRates as any[]).find((rate) => rate.type == "hourly").rate ?? 0,
-      //     deviceType: 'GPU',
-      //     provider: 'Paperspace',
-      //   }));
-      
+      hosts = instances
+        .filter((instance: any) => (instance.defaultUsageRates as any[]).findIndex((rate) => rate.type == "hourly") != -1)
+        .map((instance: any, index: number) => ({
+          hostId: `PS-${index}`,
+          provider: 'PS',
+          subindex: `PS-${index}`,
+          location: {
+            city: 'Not Specified',
+            country: 'Not Specified',
+            region: 'Not Specified',
+          },
+          specs: {
+            cpu: {
+              amount: Number(instance.cpus),
+              price: 0,
+              type: 'Not Specified',
+            },
+            gpu: [{
+              amount: 1,
+              price: (instance.defaultUsageRates as any[]).find((rate) => rate.type == "hourly").rate ?? 0,
+              type: instance.gpu,
+              vram: 0,
+            }],
+            ram: {
+              amount: Number(instance.ram) / 1024 / 1024 / 1024,
+              price: 0,
+            },
+            storage: {
+              amount: 0,
+              price: 0,
+            },
+            restrictions: [{
+              cpu: {
+                min: Number(instance.cpus),
+                max: Number(instance.cpus),
+              },
+              gpu: {
+                min: 1,
+                max: 1,
+              },
+              ram: {
+                min: Number(instance.ram) / 1024 / 1024 / 1024,
+                max: Number(instance.ram) / 1024 / 1024 / 1024,
+              }
+            }]
+          },
+        }));
 
       const end = getCurrentTimeHr();
 
-      const currentDate = new Date();
-      logger.info(`SYNC [${currentDate.toUTCString()}] FETCHED ${hosts.length} HOSTS FROM PAPERSPACE - ${((end - begin) / 1e6)} ms`);
+      logger.info(`SYNC FETCHED ${hosts.length} HOSTS FROM PAPERSPACE - ${((end - begin) / 1e6)} ms`);
 
       return resolve(hosts);
     } catch (e) {
-      return resolve([]);
+      logger.error(`SYNC FETCHING HOSTS FROM PAPERSPACE FAILED ${(e as Error).message.toUpperCase().slice(0, 30)}`);
+      return reject(e);
     }
   });
 }

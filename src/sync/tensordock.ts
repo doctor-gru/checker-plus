@@ -14,6 +14,9 @@ export const _fetch = (): Promise<IHost[]> => {
           method: 'GET',
         }
       );
+      if (!response.ok) {
+        throw new Error(`FAILED STATUS ${response.status}`);
+      }
       
       const instances = await response.json();
       const hostnodes = instances.hostnodes ?? [];
@@ -62,11 +65,11 @@ export const _fetch = (): Promise<IHost[]> => {
 
       const end = getCurrentTimeHr();
 
-      const currentDate = new Date();
-      logger.info(`SYNC [${currentDate.toUTCString()}] FETCHED ${hosts.length} HOSTS FROM TENSORDOCK - ${((end - begin) / 1e6)} ms`);
+      logger.info(`SYNC FETCHED ${hosts.length} HOSTS FROM TENSORDOCK - ${((end - begin) / 1e6)} ms`);
 
       return resolve(hosts);
     } catch (e) {
+      logger.error(`SYNC FETCHING HOSTS FROM TENSORDOCK FAILED ${(e as Error).message.toUpperCase().slice(0, 30)}`);
       return reject(e);
     }
   });

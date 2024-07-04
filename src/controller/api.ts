@@ -1,11 +1,11 @@
 import User from '../models/User';
 import ApiKey from '../models/ApiKey';
 import Host from '../models/Host';
+import RentInstance from '../models/RentedHosts';
 import generateApiKey from 'generate-api-key';
 import { ControllerResponse } from '../types'
 import { IRentInstance, IHost } from '../types';
-import { compareUnixTimestamps, fetchTensordockInstance } from '../utils/scraping';
-import RentInstance from '../models/RentedHosts';
+import { fetchTensordockMetrics, fetchVastAIMetrics, fetchPaperspaceMetrics } from '../utils/metrics';
 
 export const findApiKey = async (key: string): Promise<ControllerResponse> => {
   try {
@@ -78,6 +78,17 @@ export const availableHosts = async (): Promise<ControllerResponse> => {
   }
 }
 
+export const availableRentInstance = async (): Promise<ControllerResponse> => {
+  try {
+    const user = await RentInstance.find({}, { provider: 0 });
+    if (!user || user.length == 0) 
+      return { success: false, error: 'Rented Hosts not found' };
+    return { success: true, data: user };
+  } catch (e) {
+    return { success: false, error: (e as Error).message };
+  }
+}
+
 export const removeHosts = async (userIds: string[]): Promise<ControllerResponse> => {
   try {
     const data = await Host.deleteMany({ _id: { $in: userIds }});
@@ -112,31 +123,31 @@ export const updateHost = async (_id: string, updatedHost: IHost): Promise<Contr
   }
 }
 
-export const updateTensordockInstances = async (id: string, duration: string): Promise<ControllerResponse> => {
+export const updateMetrics = async (): Promise<ControllerResponse> => {
   try {
-    const instance: IRentInstance = await fetchTensordockInstance(id, duration);
-    const newDocument = new RentInstance(instance);
-    const existingDocument = await RentInstance.findOne({ uuid: id });
+    const tensordock: IRentInstance[] = await fetchTensordockMetrics();
+    const vastai: IRentInstance[] = await fetchVastAIMetrics();
+    const paperspace: IRentInstance[] = await fetchPaperspaceMetrics();
 
-    if (existingDocument) {
-      if (compareUnixTimestamps(existingDocument.metrics[existingDocument.metrics.length - 1].timestamp)){
-        return {
-          success: true,
-          data: existingDocument,
-        };
+    const rentInstances = tensordock.concat(vastai).concat(paperspace);
+
+    for (let i = 0; i < rentInstances.length; i ++) {
+      const eachInstance = rentInstances[i];
+      const existingDocument = await RentInstance.findOne({ uuid: eachInstance.uuid });
+
+      if (existingDocument) {
+        const metrics = existingDocument.metrics;
+        metrics.push(eachInstance.metrics[eachInstance.metrics.length - 1]);
+        if (metrics.length > 1440)
+          metrics.splice(existingDocument.metrics.length - 1440);
+        await RentInstance.updateOne({ uuid: eachInstance.uuid }, { $set: { metrics: metrics }});
+      } else {
+        const newInstance = await RentInstance.create(eachInstance);
+        if (!newInstance)
+          return { success: false, error: 'Error register new instance' };
       }
-      await RentInstance.updateOne({ _id: existingDocument._id }, {
-        $set: {
-          // TODO: update metrics data
-        }
-      });
-    } else {
-      await newDocument.save();
     }
-    return {
-      success: true,
-      data: newDocument,
-    };
+    return { success: true };
   } catch (e) {
     return {
       success: false,

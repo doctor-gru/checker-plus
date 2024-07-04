@@ -1,14 +1,13 @@
 import express from 'express';
-import Redis from 'ioredis';
 import mongoose from 'mongoose';
-
 import { MONGO_URI, PORT } from './src/utils/secrets';
-
 import { configureExpress } from './src/config';
 import { configurePassport } from './src/passport';
 import { configureRoutes } from './src/routes';
 
-import { syncInstances } from './src/sync';
+import { logger } from './src/utils/logger';
+
+import { init as initScheduler } from './src/scheduler';
 
 const app = express();
 
@@ -24,16 +23,20 @@ function connect() {
     .once('open', listen);
   mongoose.connect(MONGO_URI)
     .then(() => {
-      console.log('connected to mongodb');
-      syncInstances();
+      logger.info(`APP MONGODB CONNECTION SUCCESSFUL`);
     })
-    .catch((err) => {
-      console.log(err.message);
+    .catch((e) => {    
+      logger.error(`APP MONGODB FAILED TO CONNECT ${(e as Error).message.toUpperCase().slice(0, 30)}`);
     });
 }
 
 function listen() {
-  app.listen(PORT, () => {
-    console.log('App listening on port: ' + PORT);
-  });
+  try {
+    app.listen(PORT, () => {
+      logger.info(`APP LISTENING ON PORT: ${PORT}`);
+      initScheduler();
+    });
+  } catch (e) {
+    logger.error(`APP FAILED TO LISTEN ON PORT: ${PORT} ${(e as Error).message.toUpperCase().slice(0, 30)}`);
+  }
 }

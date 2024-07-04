@@ -1,7 +1,7 @@
 import express from 'express';
-import { registerApiKey, allApiKeys, availableHosts } from '../controller/api'; // Import the new controller function
+import { registerApiKey, allApiKeys, availableHosts, availableRentInstance } from '../controller/api'; // Import the new controller function
 import { requireLogin, requireApiKey } from '../middlewares';
-import { fetchTensordockInstance } from '../utils/scraping';
+import { _fetch } from '../sync/paperspace';
 
 const router = express.Router();
 
@@ -26,19 +26,17 @@ router.get('/rentedInstance', requireApiKey, async (req, res) => {
     return res.status(200).send({ success: false, error: 'You need to provide query data' });
   }
   
-  const id = req.query.id;
-  const duration = req.query.duration;
-
-  if (typeof id !== 'string' || typeof duration !== 'string') {
-    return res.status(200).send({ success: false, error: 'Invalid parameters. `id` and `duration` must be strings' });
-  }
-
   try {
-    const data = await fetchTensordockInstance(id, duration);
+    const data = await availableRentInstance();
     return res.status(200).send(data);
   } catch (e) {
     return res.status(500).send({ success: false, error: (e as Error).message });
   }
+});
+
+router.get('/test', async (req, res) => {
+  const data = await _fetch();
+  return res.status(200).send(data);
 });
 
 export default router;

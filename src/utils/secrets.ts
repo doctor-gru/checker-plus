@@ -1,10 +1,11 @@
 import dotenv from 'dotenv';
 import fs from 'fs';
+import { logger } from './logger';
 
 if (fs.existsSync('.env')) {
   dotenv.config({ path: '.env' });
 } else {
-  console.error('.env file not found.');
+  logger.error('.env file not found.');
 }
 
 export const ENVIRONMENT = process.env.NODE_ENV;
@@ -18,13 +19,9 @@ export const MONGO_URI = prod
 
 if (!MONGO_URI) {
   if (prod) {
-    console.error(
-      'No mongo connection string. Set MONGO_PROD environment variable.'
-    );
+    logger.error('No mongo connection string. Set MONGO_PROD environment variable.');
   } else {
-    console.error(
-      'No mongo connection string. Set MONGO_LOCAL environment variable.'
-    );
+    logger.error('No mongo connection string. Set MONGO_LOCAL environment variable.');
   }
   process.exit(1);
 }
@@ -39,9 +36,12 @@ export const FETCH_INTERVAL = (process.env.FETCH_INTERVAL || 10000) as number;
 export const TENSORDOCK_APIKEY = (process.env.TENSORDOCK_APIKEY || '') as string;
 export const TENSORDOCK_APITOKEN = (process.env.TENSORDOCK_APITOKEN || '') as string
 
+export const VASTAI_APIKEY = (process.env.VASTAI_APIKEY || '') as string;
+
 export const PAPERSPACE_APIKEY = (process.env.PAPERSPACE_APIKEY || '') as string;
 export const PAPERSPACE_EMAIL = (process.env.PAPERSPACE_EMAIL || '') as string;
 export const PAPERSPACE_PWD = (process.env.PAPERSPACE_PWD || '') as string;
+export const PAPERSPACE_TEAMID = (process.env.PAPERSPACE_TEAMID || '') as string;
 export const PAPERSPACE_REQUEST_VALIDATE_KEY = (process.env.PAPERSPACE_REQUEST_VALIDATE_KEY || '') as string;
 
 export const LAMBDA_APIKEY = (process.env.LAMBDA_APIKEY || '') as string;
