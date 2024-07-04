@@ -242,7 +242,6 @@ export const fetchPaperspaceMetrics = async (): Promise<IRentInstance[]> => {
         teamNamespace = appCache.get("teamNamespace");
       }
 
-      console.log(authenticateToken);
       const reqUrl = `https://api.paperspace.io/accounts/team/${PAPERSPACE_TEAMID}/getMachineList`;
       const reqParams = `access_token=${authenticateToken}`;
 

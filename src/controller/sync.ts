@@ -26,14 +26,13 @@ const markup = (host: IHost) => {
 
 export const updateAvailableInstances = async (): Promise<ControllerResponse> => {
   try {
-    // const [vastAI, tensorDock, paperspace] = await Promise.all([
-    //   fetchTensorDock(),
-    //   fetchVastAI(),
-    //   fetchPaperspace(),
-    // ])
-    // let allHosts: IHost[] = [];
-    // allHosts = vastAI.concat(tensorDock).concat(paperspace).map(markup);
-    let allHosts: IHost[] = await fetchPaperspace();
+    const [vastAI, tensorDock, paperspace] = await Promise.all([
+      fetchTensorDock(),
+      fetchVastAI(),
+      fetchPaperspace(),
+    ])
+    let allHosts: IHost[] = [];
+    allHosts = vastAI.concat(tensorDock).concat(paperspace).map(markup);
 
     let removingList: string[] = [];
 
