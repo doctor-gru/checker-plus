@@ -91,3 +91,22 @@ export interface IMetrics {
   smClock: number;
   cpuUsage: number;
 }
+
+export interface INft{
+  nftId: string;
+  nftName: string;
+  nftOwner: string;
+  nftPrice: number;
+  nftImage: string;
+  nftDescription: string;
+}
+export interface INftTransaction extends INft {
+  expiryDate: Date;
+}
+
+export interface IWalletUser {
+  walletAddress: `0x${string}`;
+  ownedDevices: INft[];
+  portfolio: INft[];
+  rentalHistory: INftTransaction[];
+};

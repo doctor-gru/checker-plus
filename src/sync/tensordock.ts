@@ -42,7 +42,7 @@ export const _fetch = (): Promise<IHost[]> => {
 
         hosts.push({
           hostId: key,
-          provider: 'TD',
+          provider: 'Tensordock',
           subindex: key,
           location: {
             city: hostnode.location.city,

@@ -2,10 +2,14 @@ import User from '../models/User';
 import ApiKey from '../models/ApiKey';
 import Host from '../models/Host';
 import RentInstance from '../models/RentedHosts';
+import WalletUser from '../models/WalletUser';
+
 import generateApiKey from 'generate-api-key';
 import { ControllerResponse } from '../types'
 import { IRentInstance, IHost } from '../types';
 import { fetchTensordockMetrics, fetchVastAIMetrics, fetchPaperspaceMetrics } from '../utils/metrics';
+
+import { isAddress } from 'ethers';
 
 export const findApiKey = async (key: string): Promise<ControllerResponse> => {
   try {
@@ -78,12 +82,23 @@ export const availableHosts = async (): Promise<ControllerResponse> => {
   }
 }
 
-export const availableRentInstance = async (): Promise<ControllerResponse> => {
+export const availableRentInstances = async (): Promise<ControllerResponse> => {
   try {
-    const user = await RentInstance.find({}, { provider: 0 });
-    if (!user || user.length == 0) 
+    const instances = await RentInstance.find({}, { provider: 0 });
+    if (!instances || instances.length == 0) 
       return { success: false, error: 'Rented Hosts not found' };
-    return { success: true, data: user };
+    return { success: true, data: instances };
+  } catch (e) {
+    return { success: false, error: (e as Error).message };
+  }
+}
+
+export const availableRentInstance = async(uuid: string): Promise<ControllerResponse> => {
+  try {
+    const instance = await RentInstance.findOne({uuid: uuid});
+    if (!instance)
+      return { success: false, error: 'The target host not found' };
+    return { success: true, data: instance };
   } catch (e) {
     return { success: false, error: (e as Error).message };
   }
@@ -155,3 +170,40 @@ export const updateMetrics = async (): Promise<ControllerResponse> => {
     }
   }
 };
+
+export const registerNewUser = async (walletAddress: `0x${string}`): Promise<ControllerResponse> => {
+  try {
+    const existingUser = await WalletUser.findOne({ walletAddress });
+    if (existingUser) 
+      return { success: false, error: 'User Existed in Database' };
+
+    if (!walletAddress || !isAddress(walletAddress)) {
+      return { success: false, error: 'Invalid Wallet Address' };
+    }
+
+    const newUser = new WalletUser({
+      walletAddress,
+      ownedDevices:[],
+      portfolio:[],
+      rentalHistory:[],
+    });
+
+    await newUser.save();
+
+    return { success: true, data: newUser };
+  } catch (e) {
+    return { success: false, error: (e as Error).message };
+  }
+}
+
+export const findUser = async (walletAddress: `0x${string}`): Promise<ControllerResponse> => {
+  try {
+    const user = await WalletUser.findOne({ walletAddress});
+    if (!user)
+      return { success: false, error: 'User not found' };
+    return { success: true, data: user };
+  } catch (e) {
+    return { success: false, error: (e as Error).message };
+  }
+}
+

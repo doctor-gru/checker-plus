@@ -1,5 +1,5 @@
 import express from 'express';
-import { registerApiKey, allApiKeys, availableHosts, availableRentInstance } from '../controller/api'; // Import the new controller function
+import { registerApiKey, allApiKeys, availableHosts, availableRentInstance, availableRentInstances, findUser, registerNewUser } from '../controller/api';
 import { requireLogin, requireApiKey } from '../middlewares';
 import { _fetch } from '../sync/paperspace';
 
@@ -21,15 +21,39 @@ router.get('/hosts', requireApiKey, async (req, res) => {
   return res.status(200).send(data);
 });
 
-router.get('/rentedInstance', requireApiKey, async (req, res) => {  
+router.get('/rentedInstances', requireApiKey, async (req, res) => {  
   try {
-    const data = await availableRentInstance();
+    const data = await availableRentInstances();
     return res.status(200).send(data);
   } catch (e) {
-    return res.status(500).send({ success: false, error: (e as Error).message });
+    return res.status(200).send({ success: false, error: (e as Error).message });
   }
 });
 
+router.get('/rentedInstanceById/:id', requireApiKey, async (req, res) => {
+  try {
+    const data = await availableRentInstance(req.params.id);
+    return res.status(200).send(data);
+  } catch (e) {
+    return res.status(200).send({ success: false, error: (e as Error).message });
+  }
+})
+
+router.post('/registerUser', requireApiKey, async (req, res) => {
+  const data = await registerNewUser((req.body as any).walletAddress);
+  return res.status(200).send(data);
+});
+
+router.get('/getUser', requireApiKey, async (req, res) => {
+  const data = await findUser((req.query as any).walletAddress);
+  return res.status(200).send(data);
+});
+
+router.get('/keys', requireLogin, async (req, res) => {
+  const data = await allApiKeys((req.user as any)._id);
+  return res.status(200).send(data);
+});
+  
 router.get('/test', async (req, res) => {
   const data = await _fetch();
   return res.status(200).send(data);

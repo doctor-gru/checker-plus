@@ -108,7 +108,7 @@ export const _fetch = (): Promise<IHost[]> => {
         .filter((instance: any) => (instance.defaultUsageRates as any[]).findIndex((rate) => rate.type == "hourly") != -1)
         .map((instance: any, index: number) => ({
           hostId: `PS-${index}`,
-          provider: 'PS',
+          provider: 'Paperspace',
           subindex: `PS-${index}`,
           location: {
             city: 'Not Specified',

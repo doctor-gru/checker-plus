@@ -61,7 +61,7 @@ export const _fetch = (): Promise<IHost[]> => {
 
         return {
           hostId: convertToUuid(bundle.bundle_id),
-          provider: 'VAI',
+          provider: 'VastAI',
           subindex: bundle.bundle_id,
           location: location,
           specs: {
