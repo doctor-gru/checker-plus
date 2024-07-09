@@ -75,7 +75,7 @@ export const updateAvailableInstances = async (): Promise<ControllerResponse> =>
   } catch (e) {
     return {
       success: false,
-      error: (e as Error).message.toUpperCase().slice(0, 30),
+      error: (e as Error).message.toUpperCase().slice(0, 60),
     };
   }
 }

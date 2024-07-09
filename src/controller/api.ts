@@ -38,7 +38,7 @@ export const registerApiKey = async (_userId: string): Promise<ControllerRespons
         prefix: 'PINLINK' 
       }),
       registeredUser: _userId,
-      expiredIn: new Date(Date.now().valueOf() + 1000 * 60 * 60 * 24 * 30),
+      expiredIn: new Date(Date.now().valueOf() + 1000 * 60 * 60 * 24 * 60),
     })
 
     if (!newApiKey)

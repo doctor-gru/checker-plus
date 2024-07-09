@@ -108,7 +108,7 @@ export const _fetch = (): Promise<IHost[]> => {
 
       return resolve(hosts);
     } catch (e) {
-      logger.error(`SYNC FETCHING HOSTS FROM VASTAI FAILED ${(e as Error).message.toUpperCase().slice(0, 30)}`);
+      logger.error(`SYNC FETCHING HOSTS FROM VASTAI FAILED ${(e as Error).message.toUpperCase().slice(0, 60)}`);
       return reject(e);
     }
   });

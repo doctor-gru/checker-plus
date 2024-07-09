@@ -145,7 +145,7 @@ export const fetchVastAIMetrics = async (): Promise<IRentInstance[]> => {
 
       return resolve(instances);
     } catch (e) {
-      logger.error(`FETCH METRICS FROM VASTAI FAILED ${(e as Error).message.toUpperCase().slice(0, 30)}`);
+      logger.error(`FETCH METRICS FROM VASTAI FAILED ${(e as Error).message.toUpperCase().slice(0, 60)}`);
       return reject(e);
     }
   });
@@ -219,7 +219,7 @@ export const fetchTensordockMetrics = async (): Promise<IRentInstance[]> => {
 
       return resolve(instances);
     } catch (e) {    
-      logger.error(`FETCH METRICS FROM TENSORDOCK FAILED ${(e as Error).message.toUpperCase().slice(0, 30)}`);
+      logger.error(`FETCH METRICS FROM TENSORDOCK FAILED ${(e as Error).message.toUpperCase().slice(0, 60)}`);
       return reject(e);
     }
   });
@@ -283,7 +283,7 @@ export const fetchPaperspaceMetrics = async (): Promise<IRentInstance[]> => {
 
       return resolve(instances);
     } catch (e) {    
-      logger.error(`FETCH METRICS FROM TENSORDOCK FAILED ${(e as Error).message.toUpperCase().slice(0, 30)}`);
+      logger.error(`FETCH METRICS FROM TENSORDOCK FAILED ${(e as Error).message.toUpperCase().slice(0, 60)}`);
       return reject(e);
     }
   });

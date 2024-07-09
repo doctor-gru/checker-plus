@@ -21,13 +21,13 @@ connect();
 function connect() {
   mongoose.connection
     .on('disconnected', connect)
+    .once('open', listen);
   mongoose.connect(MONGO_URI)
     .then(() => {
       logger.info(`APP MONGODB CONNECTION SUCCESSFUL`);
-      listen();
     })
     .catch((e) => {    
-      logger.error(`APP MONGODB FAILED TO CONNECT ${(e as Error).message.toUpperCase().slice(0, 30)}`);
+      logger.error(`APP MONGODB FAILED TO CONNECT ${(e as Error).message.toUpperCase().slice(0, 60)}`);
     });
 }
 
@@ -36,8 +36,12 @@ function listen() {
     app.listen(PORT, () => {
       logger.info(`APP LISTENING ON PORT: ${PORT}`);
       initScheduler();
+    }).on("error", (err) => {
+      if (!err.message.includes("EADDRINUSE")) {
+        logger.error(`APP FAILED TO LISTEN ON PORT: ${PORT} ${err.message.toUpperCase().slice(0, 60)}`);
+      }
     });
   } catch (e) {
-    logger.error(`APP FAILED TO LISTEN ON PORT: ${PORT} ${(e as Error).message.toUpperCase().slice(0, 30)}`);
+    logger.error(`APP FAILED TO LISTEN ON PORT: ${PORT} ${(e as Error).message.toUpperCase().slice(0, 60)}`);
   }
 }
