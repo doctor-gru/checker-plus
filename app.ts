@@ -21,10 +21,10 @@ connect();
 function connect() {
   mongoose.connection
     .on('disconnected', connect)
-    .once('open', listen);
   mongoose.connect(MONGO_URI)
     .then(() => {
       logger.info(`APP MONGODB CONNECTION SUCCESSFUL`);
+      listen();
     })
     .catch((e) => {    
       logger.error(`APP MONGODB FAILED TO CONNECT ${(e as Error).message.toUpperCase().slice(0, 30)}`);

@@ -1,5 +1,5 @@
 import express from 'express';
-import { registerApiKey, allApiKeys, availableHosts, availableRentInstance, availableRentInstances, findUser, registerNewUser } from '../controller/api';
+import { registerApiKey, allApiKeys, availableHosts, availableHost, availableRentInstance, availableRentInstances, findUser, registerNewUser } from '../controller/api';
 import { requireLogin, requireApiKey } from '../middlewares';
 import { _fetch } from '../sync/paperspace';
 
@@ -20,6 +20,15 @@ router.get('/hosts', requireApiKey, async (req, res) => {
   const data = await availableHosts();
   return res.status(200).send(data);
 });
+
+router.get('/hostById/:id', requireApiKey, async (req, res) => {
+  try {
+    const data = await availableHost(req.params.id);
+    return res.status(200).send(data);
+  } catch (e) {
+    return res.status(200).send({ success: false, error: (e as Error).message });
+  }
+})
 
 router.get('/rentedInstances', requireApiKey, async (req, res) => {  
   try {
