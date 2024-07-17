@@ -11,7 +11,7 @@ import { COOKIE_KEY } from '../utils/secrets';
 const allowedOrigins = ['http://localhost:5174', 'https://pinlink.ai','https://pinlink-d4b7e--dev-kigmof3k.web.app'];
 
 const corsOptions = {
-  origin: allowedOrigins, 
+  origin: '*', 
   optionsSuccessStatus: 200 
 };
 
