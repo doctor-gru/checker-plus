@@ -16,7 +16,7 @@ const corsOptions = {
 };
 
 export const configureExpress = (app: Express) => {
-  app.use(cors(corsOptions));
+  // app.use(cors(corsOptions));
   app.set('view engine', 'ejs');
   app.use(compression());
   app.use(
