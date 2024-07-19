@@ -73,7 +73,7 @@ export const allApiKeys = async (_userId: string): Promise<ControllerResponse> =
 
 export const availableHosts = async (): Promise<ControllerResponse> => {
   try {
-    const hosts = await Host.find({}, { provider: 0 });
+    const hosts = await Host.find({});
     if (!hosts || hosts.length == 0) 
       return { success: false, error: 'Hosts not found' };
     return { success: true, data: hosts };
@@ -95,7 +95,7 @@ export const availableHost = async (hostId: string): Promise<ControllerResponse>
 
 export const availableRentInstances = async (): Promise<ControllerResponse> => {
   try {
-    const instances = await RentInstance.find({}, { provider: 0 });
+    const instances = await RentInstance.find({});
     if (!instances || instances.length == 0) 
       return { success: false, error: 'Rented Hosts not found' };
     return { success: true, data: instances };
