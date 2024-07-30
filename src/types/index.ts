@@ -18,6 +18,17 @@ export interface IApiKey {
   expiredIn: Date;
 }
 
+export interface IStaking {
+  timestamp: number;
+  marketCap: string;
+  TVL: string;
+  totalStaked: string;
+  stakeRate: string;
+  APY: string;
+  ethPrice: string;
+  pinPrice: string;
+}
+
 export interface ILocation {
   city: string;
   country: string;

@@ -1,6 +1,7 @@
 import express from 'express';
 import { registerApiKey, allApiKeys, availableHosts, availableHost, availableRentInstance, availableRentInstances, findUser, registerNewUser } from '../controller/api';
 import { requireLogin, requireApiKey } from '../middlewares';
+import { batchCallStaking, batchCallToken } from "../web3"
 import { _fetch } from '../sync/paperspace';
 
 const router = express.Router();
@@ -64,8 +65,9 @@ router.get('/keys', requireLogin, async (req, res) => {
 });
   
 router.get('/test', async (req, res) => {
-  const data = await _fetch();
-  return res.status(200).send(data);
+  const staking = await batchCallStaking();
+  const token = await batchCallToken();
+  return res.status(200).send({ ...staking, ...token });
 });
 
 export default router;

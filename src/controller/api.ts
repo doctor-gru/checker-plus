@@ -73,7 +73,7 @@ export const allApiKeys = async (_userId: string): Promise<ControllerResponse> =
 
 export const availableHosts = async (): Promise<ControllerResponse> => {
   try {
-    const hosts = await Host.find({});
+    const hosts = await Host.find({}, { provider: 0 });
     if (!hosts || hosts.length == 0) 
       return { success: false, error: 'Hosts not found' };
     return { success: true, data: hosts };
@@ -95,7 +95,7 @@ export const availableHost = async (hostId: string): Promise<ControllerResponse>
 
 export const availableRentInstances = async (): Promise<ControllerResponse> => {
   try {
-    const instances = await RentInstance.find({});
+    const instances = await RentInstance.find({}, { provider: 0 });
     if (!instances || instances.length == 0) 
       return { success: false, error: 'Rented Hosts not found' };
     return { success: true, data: instances };
@@ -194,9 +194,9 @@ export const registerNewUser = async (walletAddress: `0x${string}`): Promise<Con
 
     const newUser = new WalletUser({
       walletAddress,
-      ownedDevices:[],
-      portfolio:[],
-      rentalHistory:[],
+      ownedDevices: [],
+      portfolio: [],
+      rentalHistory: [],
     });
 
     await newUser.save();

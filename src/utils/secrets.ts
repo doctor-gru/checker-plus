@@ -45,3 +45,5 @@ export const PAPERSPACE_TEAMID = (process.env.PAPERSPACE_TEAMID || '') as string
 export const PAPERSPACE_REQUEST_VALIDATE_KEY = (process.env.PAPERSPACE_REQUEST_VALIDATE_KEY || '') as string;
 
 export const LAMBDA_APIKEY = (process.env.LAMBDA_APIKEY || '') as string;
+
+export const MANAGER_PRIVATE_KEY = (process.env.MANAGER_PRIVATE_KEY || '') as string;

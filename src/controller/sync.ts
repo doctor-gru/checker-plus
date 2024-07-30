@@ -1,7 +1,6 @@
 import { _fetch as fetchTensorDock } from '../sync/tensordock'
 import { _fetch as fetchVastAI } from '../sync/vastai';
 import { _fetch as fetchPaperspace} from '../sync/paperspace';
-import { FETCH_INTERVAL } from '../utils/secrets';
 import { availableHosts, removeHosts, insertHosts } from './api';
 import { HostDocument } from '../models/Host';
 import { IHost } from '../types';
