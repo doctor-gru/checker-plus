@@ -1,7 +1,7 @@
-import { IGpu, IHost, IRestriction } from '../types';
-import { getCurrentTimeHr } from '../utils/time';
-import { logger } from '../utils/logger';
-import { TENSORDOCK_APIKEY, TENSORDOCK_APITOKEN } from '../utils/secrets';
+import { IGpu, IHost, IRestriction } from "../types";
+import { getCurrentTimeHr } from "../utils/time";
+import { logger } from "../utils/logger";
+import { TENSORDOCK_APIKEY, TENSORDOCK_APITOKEN } from "../utils/secrets";
 
 export const _fetch = (): Promise<IHost[]> => {
   return new Promise(async (resolve, reject) => {
@@ -9,20 +9,20 @@ export const _fetch = (): Promise<IHost[]> => {
       const begin = getCurrentTimeHr();
 
       const response = await fetch(
-        `https://marketplace.tensordock.com/api/v0/client/deploy/hostnodes?api_key=${TENSORDOCK_APIKEY}&api_token=${TENSORDOCK_APITOKEN}`, 
+        `https://marketplace.tensordock.com/api/v0/client/deploy/hostnodes?api_key=${TENSORDOCK_APIKEY}&api_token=${TENSORDOCK_APITOKEN}`,
         {
-          method: 'GET',
-        }
+          method: "GET",
+        },
       );
       if (!response.ok) {
         throw new Error(`FAILED STATUS ${response.status}`);
       }
-      
+
       const instances = await response.json();
       const hostnodes = instances.hostnodes ?? [];
-      
+
       let hosts: IHost[] = [];
-      
+
       for (const key in hostnodes) {
         const hostnode = hostnodes[key];
 
@@ -33,7 +33,7 @@ export const _fetch = (): Promise<IHost[]> => {
             price: hostnode.specs.gpu[gpu].price,
             type: gpu.toUpperCase(),
             vram: hostnode.specs.gpu[gpu].vram * 1024,
-          })
+          });
         }
 
         let restrictions: IRestriction[] = [];
@@ -42,7 +42,7 @@ export const _fetch = (): Promise<IHost[]> => {
 
         hosts.push({
           hostId: key,
-          provider: 'Tensordock',
+          provider: "Tensordock",
           subindex: key,
           location: {
             city: hostnode.location.city,
@@ -65,12 +65,16 @@ export const _fetch = (): Promise<IHost[]> => {
 
       const end = getCurrentTimeHr();
 
-      logger.info(`SYNC FETCHED ${hosts.length} HOSTS FROM TENSORDOCK - ${((end - begin) / 1e6)} ms`);
+      logger.info(
+        `SYNC FETCHED ${hosts.length} HOSTS FROM TENSORDOCK - ${(end - begin) / 1e6} ms`,
+      );
 
       return resolve(hosts);
     } catch (e) {
-      logger.error(`SYNC FETCHING HOSTS FROM TENSORDOCK FAILED ${(e as Error).message.toUpperCase().slice(0, 60)}`);
+      logger.error(
+        `SYNC FETCHING HOSTS FROM TENSORDOCK FAILED ${(e as Error).message.toUpperCase().slice(0, 60)}`,
+      );
       return reject(e);
     }
   });
-}
+};

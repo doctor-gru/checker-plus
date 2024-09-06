@@ -1,6 +1,6 @@
-import mongoose, { Document } from 'mongoose';
-import bcrypt from 'bcryptjs';
-import { IUser } from '../types';
+import mongoose, { Document } from "mongoose";
+import bcrypt from "bcryptjs";
+import { IUser } from "../types";
 
 const Schema = mongoose.Schema;
 
@@ -17,26 +17,25 @@ const userSchema = new Schema<UserDocument>({
   },
   passwordHash: String,
   googleId: String,
-  apiKeys: [Schema.Types.ObjectId]
+  apiKeys: [Schema.Types.ObjectId],
 });
 
 userSchema.methods = {
   authenticate: function (password) {
-    if (this.googleId.length || this.passwordHash === undefined)
-      return false;
+    if (this.googleId.length || this.passwordHash === undefined) return false;
 
     return bcrypt.compareSync(password, this.passwordHash);
   },
   encryptPassword: function (password) {
-    if (!password) return '';
+    if (!password) return "";
     try {
       return bcrypt.hashSync(password, 10);
     } catch (err) {
-      return '';
+      return "";
     }
   },
-}
+};
 
-const User = mongoose.model<UserDocument>('User', userSchema);
+const User = mongoose.model<UserDocument>("User", userSchema);
 
 export default User;

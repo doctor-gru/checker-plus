@@ -10,7 +10,7 @@ export interface IUser {
   googleId: string;
   passwordHash?: string;
   apiKeys: string[];
-};
+}
 
 export interface IApiKey {
   key: string;
@@ -37,20 +37,20 @@ export interface ILocation {
 
 export interface ICpu {
   amount: number;
-  price: number;
+  price: string;
   type: string;
 }
 
 export interface IGpu {
   amount: number;
-  price: number;
+  price: string;
   type: string;
   vram: number;
 }
 
 export interface IRamOrStorage {
   amount: number;
-  price: number;
+  price: string;
 }
 
 export interface IMinMax {
@@ -59,9 +59,9 @@ export interface IMinMax {
 }
 
 export interface IRestriction {
-  cpu: IMinMax,
-  ram: IMinMax,
-  storage: IMinMax,
+  cpu: IMinMax;
+  ram: IMinMax;
+  storage: IMinMax;
 }
 
 export interface ISpecs {
@@ -78,9 +78,12 @@ export interface IHost {
   subindex: string;
   location: ILocation;
   specs: ISpecs;
+  assignedUser: string;
+  lastRent: Date;
+  ssh: string;
 }
 
-export interface IRentInstance {
+export interface IHostPerformance {
   uuid: string;
   model: string;
   driverVersion: string;
@@ -103,7 +106,7 @@ export interface IMetrics {
   cpuUsage: number;
 }
 
-export interface INft{
+export interface INft {
   nftId: string;
   nftName: string;
   nftOwner: string;
@@ -120,4 +123,5 @@ export interface IWalletUser {
   ownedDevices: INft[];
   portfolio: INft[];
   rentalHistory: INftTransaction[];
-};
+  apiKeys: string[];
+}

@@ -1,10 +1,10 @@
-import mongoose, { Document } from 'mongoose';
-import { IMetrics, IRentInstance } from '../types';
+import mongoose, { Document } from "mongoose";
+import { IMetrics, IHostPerformance } from "../types";
 
 const Schema = mongoose.Schema;
 
 export type MetricsDocument = Document & IMetrics;
-export type RentInstanceDocument = Document & IRentInstance;
+export type HostPerformanceDocument = Document & IHostPerformance;
 
 const Metrics = new Schema<MetricsDocument>({
   timestamp: {
@@ -62,12 +62,12 @@ const Metrics = new Schema<MetricsDocument>({
     default: 0,
   },
   cpuUsage: {
-     type: Number, 
-     required: true 
-    },
+    type: Number,
+    required: true,
+  },
 });
 
-const RentedHosts = new Schema<RentInstanceDocument>({
+const AvailableHosts = new Schema<HostPerformanceDocument>({
   uuid: {
     type: String,
     required: true,
@@ -87,6 +87,9 @@ const RentedHosts = new Schema<RentInstanceDocument>({
   metrics: [Metrics],
 });
 
-const RentInstance = mongoose.model<RentInstanceDocument>('RentedInstances', RentedHosts);
+const HostPerformance = mongoose.model<HostPerformanceDocument>(
+  "HostPerformances",
+  AvailableHosts,
+);
 
-export default RentInstance;
+export default HostPerformance;

@@ -1,50 +1,34 @@
-import express from 'express';
-import passport from 'passport';
-import bcrypt from 'bcryptjs';
-
-import { registerUser } from '../controller/user';
+import express from "express";
+import { requireApiKey } from "../middlewares";
+import { getDailyNewUsers, registerUserByWallet } from "../controller/user";
+import { verifySignup } from "../utils/etherutils";
+import passport from "passport";
 
 const router = express.Router();
 
-router.get('/login', (req, res) => {
-  if (req.user) {
-    res.redirect('/profile');
-  }
-  res.render('login');
-});
+router.post("/register", async (req, res) => {
+  const signedMessage = (req.body as any).signedMessage;
+  const walletAddress = (req.body as any).walletAddress;
+  
+  const verified = await verifySignup(walletAddress, signedMessage);
+  if (!verified)
+    return res.status(401).send({ success: false, error: "Unauthorized" });
 
-router.get('/logout', (req, res) => {
-  req.logout();
-  res.redirect('/');
-});
-
-router.post('/signup', async (req, res) => {
-  const data = await registerUser({
-    email: req.body.email,
-    username: req.body.username,
-    passwordHash: bcrypt.hashSync(req.body.password, 10),
-    googleId: '',
-    apiKeys: [],
-  });
+  const data = await registerUserByWallet((req.body as any).walletAddress);
   return res.status(200).send(data);
-})
+});
 
 router.post(
-  '/login', 
-  passport.authenticate('local', { failureRedirect: '/auth/login' }),
+  "/login", 
+  passport.authenticate('wallet'),
   async (req, res) => {
-    res.redirect('/profile');
-})
+    return res.status(200).send({ success: true });
+  }
+)
 
-router.get(
-  '/google',
-  passport.authenticate('google', {
-    scope: ['email', 'profile'],
-  })
-);
-
-router.get('/google/redirect', passport.authenticate('google'), (req, res) => {
-  res.redirect('/profile');
+router.get("/getDailyNewUsers", requireApiKey, async (req, res) => {
+  const data = await getDailyNewUsers();
+  return res.status(200).send(data);
 });
 
 export default router;

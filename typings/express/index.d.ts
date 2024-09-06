@@ -1,6 +1,6 @@
-import { UserDocument } from '../../models/User';
-import { HostDocument } from '../../models/Host';
-import { ApiKeyDocument } from '../../models/ApiKey';
+import { UserDocument } from "../../models/User";
+import { HostDocument } from "../../models/Host";
+import { ApiKeyDocument } from "../../models/ApiKey";
 
 declare global {
   namespace Express {

@@ -1,14 +1,15 @@
-import express from 'express';
-import mongoose from 'mongoose';
+import express from "express";
+import mongoose from "mongoose";
+import ngrok from "@ngrok/ngrok";
 
-import { MONGO_URI, PORT } from './src/utils/secrets';
-import { configureExpress } from './src/config';
-import { configurePassport } from './src/passport';
-import { configureRoutes } from './src/routes';
+import { isProd, MONGO_URI, NGROK_DOMAIN, PORT } from "./src/utils/secrets";
+import { configureExpress } from "./src/config";
+import { configurePassport } from "./src/passport";
+import { configureRoutes } from "./src/routes";
 
-import { logger } from './src/utils/logger';
+import { logger } from "./src/utils/logger";
 
-import { init as initScheduler } from './src/scheduler';
+import { init as initScheduler } from "./src/scheduler";
 
 const app = express();
 
@@ -19,29 +20,50 @@ configureRoutes(app);
 connect();
 
 function connect() {
-  mongoose.connection
-    .on('disconnected', connect)
-  mongoose.connect(MONGO_URI)
+  mongoose.connection.on("disconnected", connect);
+  mongoose
+    .connect(MONGO_URI)
     .then(() => {
       logger.info(`APP MONGODB CONNECTION SUCCESSFUL`);
       listen();
     })
-    .catch((e) => {    
-      logger.error(`APP MONGODB FAILED TO CONNECT ${(e as Error).message.toUpperCase().slice(0, 60)}`);
+    .catch((e) => {
+      logger.error(
+        `APP MONGODB FAILED TO CONNECT ${(e as Error).message.toUpperCase().slice(0, 60)}`,
+      );
     });
 }
 
 function listen() {
   try {
-    app.listen(PORT, () => {
-      logger.info(`APP LISTENING ON PORT: ${PORT}`);
-      initScheduler();
-    }).on("error", (err) => {
-      if (!err.message.includes("EADDRINUSE")) {
-        logger.error(`APP FAILED TO LISTEN ON PORT: ${PORT} ${err.message.toUpperCase().slice(0, 60)}`);
-      }
-    });
+    app
+      .listen(PORT, () => {
+        logger.info(`APP LISTENING ON PORT: ${PORT}`);
+        initScheduler();
+        if (isProd) runNgrok();
+      })
+      .on("error", (err) => {
+        if (!err.message.includes("EADDRINUSE")) {
+          logger.error(
+            `APP FAILED TO LISTEN ON PORT: ${PORT} ${err.message.toUpperCase().slice(0, 60)}`,
+          );
+        }
+      });
   } catch (e) {
-    logger.error(`APP FAILED TO LISTEN ON PORT: ${PORT} ${(e as Error).message.toUpperCase().slice(0, 60)}`);
+    logger.error(
+      `APP FAILED TO LISTEN ON PORT: ${PORT} ${(e as Error).message.toUpperCase().slice(0, 60)}`,
+    );
   }
+}
+
+function runNgrok() {
+  ngrok
+    .connect({ addr: PORT, authtoken_from_env: true, hostname: NGROK_DOMAIN })
+    .then((listener) =>
+      console.log(`Ingress established at: ${listener.url()}`),
+    )
+    .catch((err) => {
+      logger.error(`Failed to establish ngrok tunnel: ${err.message}`);
+      console.error(`Failed to establish ngrok tunnel: ${err.message}`);
+    });
 }

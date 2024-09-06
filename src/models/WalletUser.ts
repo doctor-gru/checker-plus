@@ -1,5 +1,5 @@
-import mongoose, { Document } from 'mongoose';
-import { IWalletUser,INft,INftTransaction } from '../types';
+import mongoose, { Document } from "mongoose";
+import { IWalletUser, INft, INftTransaction } from "../types";
 
 const Schema = mongoose.Schema;
 
@@ -42,8 +42,12 @@ const walletUserSchema = new Schema<WalletUserDocument>({
     type: [NftTransactionSchema],
     required: true,
   },
-});
+  apiKeys: [Schema.Types.ObjectId],
+}, { timestamps: true });
 
-const WalletUser = mongoose.model<WalletUserDocument>('WalletUser', walletUserSchema);
+const WalletUser = mongoose.model<WalletUserDocument>(
+  "WalletUser",
+  walletUserSchema,
+);
 
 export default WalletUser;

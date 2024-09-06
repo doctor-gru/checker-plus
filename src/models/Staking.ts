@@ -1,5 +1,5 @@
-import mongoose, { Document } from 'mongoose';
-import { IStaking } from '../types';
+import mongoose, { Document } from "mongoose";
+import { IStaking } from "../types";
 
 const Schema = mongoose.Schema;
 
@@ -40,7 +40,6 @@ const stakingSchema = new Schema<StakingDocument>({
   },
 });
 
-
-const Staking = mongoose.model<StakingDocument>('Staking', stakingSchema);
+const Staking = mongoose.model<StakingDocument>("Staking", stakingSchema);
 
 export default Staking;

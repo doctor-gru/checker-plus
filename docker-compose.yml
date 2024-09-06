@@ -9,7 +9,7 @@ services:
       - .:/app
       - /app/node_modules
     command: npm run dev
-    dns_search: '' # For Mac smoothness
+    dns_search: "" # For Mac smoothness
     env_file:
       - .env
     ports:
