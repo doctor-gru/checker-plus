@@ -13,6 +13,7 @@ export const isProd = ENVIRONMENT === "production";
 
 export const PORT = (process.env.PORT || 3000) as number;
 export const NGROK_DOMAIN = (process.env.NGROK_DOMAIN || null) as string;
+export const NGROK_AUTHTOKEN = (process.env.NGROK_AUTHTOKEN || null) as string;
 
 export const MONGO_URI = isProd
   ? (process.env.MONGO_PROD as string)

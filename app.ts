@@ -2,7 +2,7 @@ import express from "express";
 import mongoose from "mongoose";
 import ngrok from "@ngrok/ngrok";
 
-import { isProd, MONGO_URI, NGROK_DOMAIN, PORT } from "./src/utils/secrets";
+import { isProd, MONGO_URI, NGROK_DOMAIN, NGROK_AUTHTOKEN, PORT } from "./src/utils/secrets";
 import { configureExpress } from "./src/config";
 import { configurePassport } from "./src/passport";
 import { configureRoutes } from "./src/routes";
@@ -58,7 +58,7 @@ function listen() {
 
 function runNgrok() {
   ngrok
-    .connect({ addr: PORT, authtoken_from_env: true, hostname: NGROK_DOMAIN })
+    .connect({ addr: PORT, authtoken: NGROK_AUTHTOKEN })
     .then((listener) =>
       console.log(`Ingress established at: ${listener.url()}`),
     )
